@@ -2,7 +2,7 @@
 
 ## What is it?
 
-This code sample demonstrates a one-to-one and group video call application built with [Video SDK RTC Javascript SDK](https://docs.videosdk.live/docs/realtime-communication/sdk-reference/javascript-sdk/setup), [Video SDK RTC JS SDK](https://docs.videosdk.live/docs/realtime-communication/sdk-reference/javascript-sdk/setup)
+This code sample demonstrates a one-to-one and group video call application built with [Video SDK RTC Javascript SDK](https://docs.videosdk.live/docs/guide/video-and-audio-calling-api-sdk/getting-started)
 
 - Built for serverless video calling experience.
 - Scale it upto 5,000 participants with low code.
