@@ -39,19 +39,13 @@ You must have the following installed:
    $ git clone https://github.com/videosdk-live/videosdk-rtc-javascript-sdk-example.git
    ```
 
-3. Copy the `.env.example` file to `.env` file.
-
-   ```sh
-   $ cp .env.example .env
-   ```
-
-4. Update the api server url in the `.env` file that points to the authentication server.
+3. Update the api server url in the `index.js` file that points to the authentication server.
 
    ```
    API_SERVER_URL="http://localhost:9000"
    ```
 
-5. Run the app
+4. Run the app
 
    ```sh
    $ npm install -g live-server
