@@ -381,6 +381,8 @@ function addDomEvents() {
   leaveMeetingBtn.addEventListener("click", async () => {
     // leavemeeting
     meeting.leave();
+    //reload page
+    window.location.reload();
     document.querySelector("#joinPage").style.display = "flex";
   });
 
@@ -388,6 +390,8 @@ function addDomEvents() {
   endMeetingBtn.addEventListener("click", async () => {
     //end meeting
     meeting.end();
+    //reload page
+    window.location.reload();
   });
   //startVideo button events [playing VIDEO.MP4]
   startVideoBtn.addEventListener("click", async () => {
