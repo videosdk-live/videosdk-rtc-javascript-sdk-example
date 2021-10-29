@@ -199,6 +199,10 @@ function startMeeting(token, meetingId, name) {
     }
   });
 
+  meeting.on("meeting-left", () => {
+    window.location.reload();
+  });
+
   // //Entry Response
   // meeting.on("entry-requested", (requestEvent) => {
   //   console.log(requestEvent, "EVENT::entryRequested");
