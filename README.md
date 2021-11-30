@@ -2,7 +2,7 @@
 
 ## What is it?
 
-This code sample demonstrates a one-to-one and group video call application built with [Video SDK RTC Javascript SDK](https://docs.videosdk.live/docs/guide/video-and-audio-calling-api-sdk/getting-started)
+This code sample demonstrates a one-to-one and group video call application built with [Video SDK RTC Javascript SDK](https://docs.videosdk.live/docs/guide/video-and-audio-calling-api-sdk/javascript-sdk)
 
 - Built for serverless video calling experience.
 - Scale it upto 5,000 participants with low code.
@@ -36,7 +36,7 @@ You must have the following installed:
 2. Clone the repo
 
    ```sh
-   $ git clone https://github.com/videosdk-live/videosdk-rtc-javascript-sdk-example.git
+   git clone https://github.com/videosdk-live/videosdk-rtc-javascript-sdk-example.git
    ```
 
 3. Update the api server url in the `index.js` file that points to the authentication server.
@@ -48,8 +48,8 @@ You must have the following installed:
 4. Run the app
 
    ```sh
-   $ npm install -g live-server
-   $ live-server --port=8000
+   npm install -g live-server
+   live-server --port=8000
    ```
 
 For more information, visit [official documentation](https://docs.videosdk.live/docs/guide/video-and-audio-calling-api-sdk/getting-started)
