@@ -1,5 +1,5 @@
 // Constants
-const API_SERVER_URL = "http://localhost:9000";
+const API_SERVER_URL = "http://localhost:5000/server";
 
 // Declaring variables
 let videoContainer = document.getElementById("videoContainer");
@@ -32,8 +32,7 @@ let meeting;
 let localParticipant;
 let localParticipantAudio;
 
-///////// join page
-
+// join page
 let joinPageWebcam = document.getElementById("joinCam");
 
 navigator.mediaDevices
@@ -228,19 +227,19 @@ async function joinMeeting(newMeeting) {
     return alert("Please Provide a meetingId");
   }
 
+  if (!meetingId) {
+    return alert("Please enter a meeting Id to create it");
+  }
+
   document.getElementById("joinPage").style.display = "none";
 
   //create New Token
-  let token = await window
-    .fetch(API_SERVER_URL + "/get-token")
-    .then(async (response) => {
-      const { token } = await response.json();
-      return token;
-    });
-
+  let token = TOKEN;
+  //let token = console.log(token);
   const options = {
     method: "POST",
     headers: {
+      Authorization: token,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ token }),
@@ -250,13 +249,14 @@ async function joinMeeting(newMeeting) {
   if (!newMeeting) {
     //validate meetingId if provided;
     meetingId = await fetch(
-      API_SERVER_URL + "/validate-meeting/" + meetingId,
+      API_SERVER_URL + "/validatemeeting/" + meetingId,
       options
     )
       .then(async (result) => {
+        console.log("validate meeting : ", result);
         const { meetingId } = await result.json();
         console.log("meetingId", meetingId);
-        return meetingId;
+        return result;
       })
       .catch(() => {
         alert("invalid Meeting Id");
@@ -268,7 +268,7 @@ async function joinMeeting(newMeeting) {
   //create New Meeting
   //get new meeting if new meeting requested;
   if (newMeeting) {
-    meetingId = await fetch(API_SERVER_URL + "/create-meeting", options).then(
+    meetingId = await fetch(API_SERVER_URL + "/createMeeting", options).then(
       async (result) => {
         const { meetingId } = await result.json();
         console.log("NEW MEETING meetingId", meetingId);
