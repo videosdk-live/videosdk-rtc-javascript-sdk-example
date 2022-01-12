@@ -230,10 +230,10 @@ async function joinMeeting(newMeeting) {
 
   //create New Token
   let token = "";
-  if (TOKEN != "") {
+  if (TOKEN != "" && AUTH_URL == "") {
     token = TOKEN;
     console.log("TOKEN : ", token);
-  } else {
+  } else if (AUTH_URL != "" && TOKEN == "") {
     console.log("AUTH URL : ", AUTH_URL);
     token = await window
       .fetch(AUTH_URL + "/generateJWTToken")
@@ -248,6 +248,10 @@ async function joinMeeting(newMeeting) {
         return;
       });
     console.log("AUTH_URL_TOKEN : ", token);
+  } else if (AUTH_URL == "" && TOKEN == "") {
+    return alert("Set Your configuration details first ");
+  } else {
+    return alert("Check Your configuration once ");
   }
 
   const options = {
