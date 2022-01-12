@@ -214,13 +214,8 @@ function startMeeting(token, meetingId, name) {
   addDomEvents();
 }
 
-//get access token
-
 // joinMeeting();
-
 async function joinMeeting(newMeeting) {
-  // let defaultMeeting = "qwrc-b9ho-7x3j";
-
   let name = document.getElementById("joinMeetingName").value || "JSSDK";
   let meetingId = document.getElementById("joinMeetingId").value;
   if (!meetingId && !newMeeting) {
@@ -234,8 +229,27 @@ async function joinMeeting(newMeeting) {
   document.getElementById("joinPage").style.display = "none";
 
   //create New Token
-  let token = TOKEN;
-  //let token = console.log(token);
+  let token = "";
+  if (TOKEN != "") {
+    token = TOKEN;
+    console.log("TOKEN : ", token);
+  } else {
+    console.log("AUTH URL : ", AUTH_URL);
+    token = await window
+      .fetch(AUTH_URL + "/generateJWTToken")
+      .then(async (response) => {
+        console.log(response);
+        const { token } = await response.json();
+        console.log(token);
+        return token;
+      })
+      .catch(async (e) => {
+        console.log(await e);
+        return;
+      });
+    console.log("AUTH_URL_TOKEN : ", token);
+  }
+
   const options = {
     method: "POST",
     headers: {
@@ -253,10 +267,9 @@ async function joinMeeting(newMeeting) {
       options
     )
       .then(async (result) => {
-        console.log("validate meeting : ", result);
-        const { meetingId } = await result.json();
-        console.log("meetingId", meetingId);
-        return result;
+        console.log("validate meeting result : ", result.body);
+        const { meetingId } = await result.body;
+        console.log(meetingId);
       })
       .catch(() => {
         alert("invalid Meeting Id");
@@ -275,8 +288,9 @@ async function joinMeeting(newMeeting) {
         return meetingId;
       }
     );
+    console.log("MEETING_ID::", meetingId);
   }
-  console.log("MEETING_ID::", meetingId);
+
   //set meetingId
   document.querySelector("#meetingid").innerHTML = meetingId;
   startMeeting(token, meetingId, name);

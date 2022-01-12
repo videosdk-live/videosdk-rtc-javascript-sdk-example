@@ -45,7 +45,13 @@ You must have the following installed:
    TOKEN="Your Token Here"
    ```
 
-4. Run the app
+4. If one doesn't want to give their token they they can generate token using AUTH_URL of their own in `config.js` file
+
+   ```
+   AUTH_URL=one's auth url
+   ```
+
+5. Run the app
 
    ```sh
    npm install -g live-server
