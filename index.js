@@ -65,10 +65,10 @@ function createLocalParticipant() {
 
 function startMeeting(token, meetingId, name) {
   // Meeting config
-  window.ZujoSDK.config(token);
+  window.VideoSDK.config(token);
 
   // Meeting Init
-  meeting = window.ZujoSDK.initMeeting({
+  meeting = window.VideoSDK.initMeeting({
     meetingId: meetingId, // required
     name: name, // required
     micEnabled: true, // optional, default: true
