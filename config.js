@@ -1,2 +1,4 @@
-TOKEN = "";
-AUTH_URL = "http://localhost:5000/server";
+TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiI1ZDcwMDg3My0yNmIzLTRlNzgtYjI2ZS0xYzBiZjRlYmNlNDYiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTY0Mjc0MDAwNywiZXhwIjoxNjQzMzQ0ODA3fQ.-nPH9TuCoDuG3iSBf4LuZq41vGBw2fJ8W9KhkbAvTI8";
+// AUTH_URL = "http://localhost:5000/server";
+AUTH_URL = "";
