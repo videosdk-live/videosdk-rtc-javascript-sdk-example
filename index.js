@@ -1,5 +1,5 @@
 // Constants
-const API_SERVER_URL = "http://localhost:5000/server";
+const API_BASE_URL = "https://api.videosdk.live";
 
 // Declaring variables
 let videoContainer = document.getElementById("videoContainer");
@@ -49,6 +49,7 @@ let totalParticipants = 0;
 let remoteParticipantId = "";
 // join page
 let joinPageWebcam = document.getElementById("joinCam");
+let meetingCode = "";
 
 navigator.mediaDevices
   .getUserMedia({
@@ -82,45 +83,68 @@ async function tokenGeneration() {
   } else if (AUTH_URL == "" && TOKEN == "") {
     alert("Set Your configuration details first ");
     window.location.href = "/";
-    window.location.reload();
+    // window.location.reload();
   } else {
     alert("Check Your configuration once ");
     window.location.href = "/";
-    window.location.reload();
+    // window.location.reload();
   }
 }
 
 async function validateMeeting() {
   tokenGeneration();
   meetingId = document.getElementById("joinMeetingId").value;
-  validateMeetingIdAnswer = await fetch(
-    API_SERVER_URL + "/validatemeeting/" + meetingId,
-    {
-      method: "POST",
-      headers: {
-        Authorization: token,
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then(async (result) => {
-      const { meetingId } = await result.json();
-      console.log(meetingId);
-      if (meetingId == undefined) {
-        return alert("Invalid Meeting ID ");
-      } else {
-        document.getElementById("joinPage").style.display = "flex";
-        document.getElementById("home-page").style.display = "none";
-        return meetingId;
-      }
-    })
-    .catch(async (e) => {
-      alert("Meeting ID Invalid", await e);
-      window.location.href = "/";
-      return;
-    });
+  if (token != "") {
+    const url = `${API_BASE_URL}/api/meetings/${meetingId}`;
 
-  console.log("Meeting ID Answer : ", validateMeetingIdAnswer);
+    const options = {
+      method: "POST",
+      headers: { Authorization: token },
+    };
+
+    const result = await fetch(url, options)
+      .then((response) => response.json()) //result will have meeting id
+      .catch((error) => {
+        console.error("error", error);
+        alert("Invalid Meeting Id");
+        window.location.href = "/";
+        return;
+      });
+    if (result.meetingId === meetingId) {
+      document.getElementById("joinPage").style.display = "flex";
+      document.getElementById("home-page").style.display = "none";
+      return meetingId;
+    }
+  } else {
+    validateMeetingIdAnswer = await fetch(
+      AUTH_URL + "/validatemeeting/" + meetingId,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then(async (result) => {
+        const { meetingId } = await result.json();
+        console.log(meetingId);
+        if (meetingId == undefined) {
+          return alert("Invalid Meeting ID ");
+        } else {
+          document.getElementById("joinPage").style.display = "flex";
+          document.getElementById("home-page").style.display = "none";
+          return meetingId;
+        }
+      })
+      .catch(async (e) => {
+        alert("Meeting ID Invalid", await e);
+        window.location.href = "/";
+        return;
+      });
+
+    console.log("Meeting ID Answer : ", validateMeetingIdAnswer);
+  }
 }
 
 function addParticipantToList({ id, displayName }) {
@@ -328,6 +352,7 @@ function startMeeting(token, meetingId, name) {
 
 // joinMeeting();
 async function joinMeeting(newMeeting) {
+  tokenGeneration();
   let joinMeetingName =
     document.getElementById("joinMeetingName").value || "JSSDK";
   let meetingId = document.getElementById("joinMeetingId").value || "";
@@ -348,10 +373,6 @@ async function joinMeeting(newMeeting) {
     toggleControls();
   }
 
-  // if (!meetingId) {
-  //   return alert("Please enter a meeting Id to create it");
-  // }
-
   if (createMeetingFlag == 1) {
     document.getElementById("joinPage").style.display = "none";
     document.getElementById("home-page").style.display = "none";
@@ -364,7 +385,7 @@ async function joinMeeting(newMeeting) {
   }
 
   //create New Token
-  tokenGeneration();
+  // tokenGeneration();
 
   const options = {
     method: "POST",
@@ -376,33 +397,56 @@ async function joinMeeting(newMeeting) {
   };
 
   // validate meetingId;
+  // if (!newMeeting && token != "") {
+  //   document.getElementById("joinPage").style.display = "none";
+  //   document.getElementById("home-page").style.display = "none";
+  //   document.getElementById("gridPpage").style.display = "flex";
+  // } else if (!newMeeting && token == "") {
+  //   //validate meetingId if provided;
+  //   meetingId = await fetch(
+  //     API_SERVER_URL + "/validatemeeting/" + meetingId,
+  //     options
+  //   )
+  //     .then(async (result) => {
+  //       const { meetingId } = await result.json();
+  //       console.log(meetingId);
+  //       document.getElementById("joinPage").style.display = "none";
+  //       document.getElementById("home-page").style.display = "none";
+  //       document.getElementById("gridPpage").style.display = "flex";
+  //       toggleControls();
+  //       return meetingId;
+  //     })
+  //     .catch(() => {
+  //       alert("invalid Meeting Id");
+  //       window.location.href = "/";
+  //       return;
+  //     });
+  // }
   if (!newMeeting) {
-    //validate meetingId if provided;
-    meetingId = await fetch(
-      API_SERVER_URL + "/validatemeeting/" + meetingId,
-      options
-    )
-      .then(async (result) => {
-        const { meetingId } = await result.json();
-        console.log(meetingId);
-        document.getElementById("joinPage").style.display = "none";
-        document.getElementById("home-page").style.display = "none";
-        document.getElementById("gridPpage").style.display = "flex";
-        toggleControls();
-        return meetingId;
-      })
-      .catch(() => {
-        alert("invalid Meeting Id");
-        window.location.href = "/";
-        return;
-      });
+    console.log(meetingId);
+    document.getElementById("joinPage").style.display = "none";
+    document.getElementById("home-page").style.display = "none";
+    document.getElementById("gridPpage").style.display = "flex";
+    document.getElementById("meetingid").value = meetingId;
+    startMeeting(token, meetingId, joinMeetingName);
   }
 
   //create New Meeting
   //get new meeting if new meeting requested;
-  if (newMeeting) {
-    // alert("newMeeting True");
-    meetingId = await fetch(API_SERVER_URL + "/createMeeting", options).then(
+  if (newMeeting && TOKEN != "") {
+    const url = `${API_BASE_URL}/api/meetings`;
+    const options = {
+      method: "POST",
+      headers: { Authorization: token, "Content-Type": "application/json" },
+    };
+
+    const { meetingId } = await fetch(url, options)
+      .then((response) => response.json())
+      .catch((error) => alert("error", error));
+    document.getElementById("meetingid").value = meetingId;
+    startMeeting(token, meetingId, joinMeetingName);
+  } else if (newMeeting && TOKEN == "") {
+    meetingId = await fetch(AUTH_URL + "/createMeeting", options).then(
       async (result) => {
         console.log("result of create meeting : ", result);
         const { meetingId } = await result.json();
@@ -410,13 +454,9 @@ async function joinMeeting(newMeeting) {
         return meetingId;
       }
     );
-
-    console.log("MEETING_ID::", meetingId);
+    document.getElementById("meetingid").value = meetingId;
+    startMeeting(token, meetingId, joinMeetingName);
   }
-
-  console.log("set meeting ID : ", meetingId);
-  document.getElementById("meetingid").value = meetingId;
-  startMeeting(token, meetingId, joinMeetingName);
 
   //set meetingId
 }
@@ -585,6 +625,7 @@ function addDomEvents() {
   // //send chat message button
   btnSend.addEventListener("click", async () => {
     const message = document.getElementById("txtChat").value;
+    document.getElementById("txtChat").value = "";
     meeting.sendChatMessage(JSON.stringify({ type: "chat", message }));
   });
 
