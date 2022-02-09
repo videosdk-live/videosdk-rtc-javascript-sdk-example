@@ -18,15 +18,6 @@ let videoCamOn = document.getElementById("main-pg-cam-on");
 
 let micOn = document.getElementById("main-pg-unmute-mic");
 let micOff = document.getElementById("main-pg-mute-mic");
-// let leaveMeetingBtn = document.getElementById("leaveMeeting-btn");
-// let endMeetingBtn = document.getElementById("endMeeting-btn");
-
-//Video Elements
-// let startVideoBtn = document.getElementById("startVideo-btn");
-// let stopVideoBtn = document.getElementById("stopVideo-btn");
-// let resumeVideoBtn = document.getElementById("resumeVideo-btn");
-// let pauseVideoBtn = document.getElementById("pauseVideo-btn");
-// let seekVideoBtn = document.getElementById("seekVideo-btn");
 
 //recording
 let btnStartRecording = document.getElementById("btnStartRecording");
@@ -47,9 +38,11 @@ let micEnable = true;
 let webCamEnable = true;
 let totalParticipants = 0;
 let remoteParticipantId = "";
+let participants = [];
 // join page
 let joinPageWebcam = document.getElementById("joinCam");
 let meetingCode = "";
+let screenShareOn = false;
 
 navigator.mediaDevices
   .getUserMedia({
@@ -61,8 +54,6 @@ navigator.mediaDevices
     joinPageWebcam.srcObject = stream;
     joinPageWebcam.play();
   });
-
-////////// rest of the code
 
 async function tokenGeneration() {
   if (TOKEN != "" && AUTH_URL == "") {
@@ -169,6 +160,9 @@ function addParticipantToList({ id, displayName }) {
   colIcon.className = "col-3";
   colIcon.innerHTML = `${displayName}`;
   participantTemplate.appendChild(content);
+  // participants.push({ id, displayName });
+
+  console.log(participants);
 
   participantsList.appendChild(participantTemplate);
   participantsList.appendChild(document.createElement("br"));
@@ -197,6 +191,8 @@ function startMeeting(token, meetingId, name) {
     maxResolution: "hd", // optional, default: "hd"
   });
 
+  toggleControls();
+  participants = meeting.participants;
   console.log("meeting obj : ", meeting);
   // Meeting Join
   meeting.join();
@@ -205,7 +201,11 @@ function startMeeting(token, meetingId, name) {
   createLocalParticipant();
 
   //add yourself in participant list
-  addParticipantToList({ id: meeting.localParticipant.id, displayName: "You" });
+  if (totalParticipants != 0)
+    addParticipantToList({
+      id: meeting.localParticipant.id,
+      displayName: "You",
+    });
 
   // Setting local participant stream
   meeting.localParticipant.on("stream-enabled", (stream) => {
@@ -237,6 +237,10 @@ function startMeeting(token, meetingId, name) {
     totalParticipants--;
     let vElement = document.getElementById(`v-${participant.id}`);
     vElement.parentNode.removeChild(vElement);
+    // participants = participants.filter(function (value, index, arr) {
+    //   return value == participant.id;
+    // });
+    // console.log(participants);
 
     let aElement = document.getElementById(`a-${participant.id}`);
     aElement.parentNode.removeChild(aElement);
@@ -317,20 +321,35 @@ function startMeeting(token, meetingId, name) {
   });
 
   meeting.on("presenter-changed", (presenterId) => {
-    if (presenterId == null) {
-      videoScreenShare.style.visibility = "hidden";
-      videoScreenShare.style.display = "none";
-      console.log("presneter ID :", presenterId);
-      console.log(
-        "display of videoScreenShare",
-        videoScreenShare.style.display
-      );
-      screenShare.removeAttribute("src");
-      screenShare.pause();
-      screenShare.load();
-    } else {
-      console.log("presenter not null");
+    // if (presenterId == null) {
+    //   videoScreenShare.style.visibility = "hidden";
+    //   videoScreenShare.style.display = "none";
+    //   console.log("presneter ID :", presenterId);
+    //   console.log(
+    //     "display of videoScreenShare",
+    //     videoScreenShare.style.display
+    //   );
+    //   screenShare.removeAttribute("src");
+    //   screenShare.pause();
+    //   screenShare.load();
+    //   meeting.disableScreenShare();
+    // } else {
+    //   console.log("presenter not null");
+    //   videoScreenShare.style.display = "inline-block";
+    // }
+    if (presenterId) {
+      console.log(presenterId);
       videoScreenShare.style.display = "inline-block";
+    } else {
+      console.log(presenterId);
+      videoScreenShare.removeAttribute("src");
+      videoScreenShare.pause();
+      videoScreenShare.load();
+      videoScreenShare.style.display = "none";
+
+      btnScreenShare.style.color = "white";
+      screenShareOn = false;
+      console.log(`screen share on : ${screenShareOn}`);
     }
   });
 
@@ -396,32 +415,6 @@ async function joinMeeting(newMeeting) {
     body: JSON.stringify({ token }),
   };
 
-  // validate meetingId;
-  // if (!newMeeting && token != "") {
-  //   document.getElementById("joinPage").style.display = "none";
-  //   document.getElementById("home-page").style.display = "none";
-  //   document.getElementById("gridPpage").style.display = "flex";
-  // } else if (!newMeeting && token == "") {
-  //   //validate meetingId if provided;
-  //   meetingId = await fetch(
-  //     API_SERVER_URL + "/validatemeeting/" + meetingId,
-  //     options
-  //   )
-  //     .then(async (result) => {
-  //       const { meetingId } = await result.json();
-  //       console.log(meetingId);
-  //       document.getElementById("joinPage").style.display = "none";
-  //       document.getElementById("home-page").style.display = "none";
-  //       document.getElementById("gridPpage").style.display = "flex";
-  //       toggleControls();
-  //       return meetingId;
-  //     })
-  //     .catch(() => {
-  //       alert("invalid Meeting Id");
-  //       window.location.href = "/";
-  //       return;
-  //     });
-  // }
   if (!newMeeting) {
     console.log(meetingId);
     document.getElementById("joinPage").style.display = "none";
@@ -491,10 +484,12 @@ function createAudioElement(pId) {
 //setting up tracks
 function setTrack(stream, videoElem, audioElement, id) {
   if (stream.kind == "video") {
+    console.log("video evenet");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
-    videoElem.srcObject = mediaStream;
-    videoElem
+    let videoElm = document.getElementById(`v-${id}`);
+    videoElm.srcObject = mediaStream;
+    videoElm
       .play()
       .catch((error) =>
         console.error("videoElem.current.play() failed", error)
@@ -510,6 +505,7 @@ function setTrack(stream, videoElem, audioElement, id) {
       .catch((error) => console.error("audioElem.play() failed", error));
   }
   if (stream.kind == "share") {
+    screenShareOn = true;
     console.log("SHARE EVENT ");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
@@ -519,6 +515,8 @@ function setTrack(stream, videoElem, audioElement, id) {
       .catch((error) =>
         console.error("videoElem.current.play() failed", error)
       );
+    videoScreenShare.style.display = "inline-block";
+    btnScreenShare.style.color = "grey";
   }
 }
 
@@ -542,48 +540,50 @@ function addDomEvents() {
   videoCamOn.addEventListener("click", async () => {
     videoCamOn.style.display = "none";
     videoCamOff.style.display = "inline-block";
-    joinPageWebcam.style.backgroundColor = "black";
-    joinPageWebcam.srcObject = null;
-    const options = {
-      audio: false,
-      video: true,
-    };
-    if (totalParticipants == 1) {
-      const stream = await navigator.mediaDevices.getUserMedia(options);
-      let videoElm = document.getElementById(
-        `v-${meeting.localParticipant.id}`
-      );
-      videoElm.srcObject = null;
-    } else {
-      const stream = await navigator.mediaDevices.getUserMedia(options);
-      let videoElm = document.querySelector(`#v-${remoteParticipantId}`);
-      videoElm.srcObject = null;
-    }
+    meeting.disableWebcam();
+    // joinPageWebcam.style.backgroundColor = "black";
+    // joinPageWebcam.srcObject = null;
+    // const options = {
+    //   audio: false,
+    //   video: true,
+    // };
+    // if (totalParticipants == 1) {
+    //   const stream = await navigator.mediaDevices.getUserMedia(options);
+    //   let videoElm = document.getElementById(
+    //     `v-${meeting.localParticipant.id}`
+    //   );
+    //   videoElm.srcObject = null;
+    // } else {
+    //   const stream = await navigator.mediaDevices.getUserMedia(options);
+    //   let videoElm = document.querySelector(`#v-${remoteParticipantId}`);
+    //   videoElm.srcObject = null;
+    // }
   });
 
   videoCamOff.addEventListener("click", async () => {
     videoCamOff.style.display = "none";
     videoCamOn.style.display = "inline-block";
-    // meeting.enableWebCam();
-    const options = {
-      audio: false,
-      video: true,
-    };
-    if (totalParticipants == 1) {
-      const stream = await navigator.mediaDevices.getUserMedia(options);
-      let videoElm = document.getElementById(
-        `v-${meeting.localParticipant.id}`
-      );
-      videoElm.srcObject = null;
-      videoElm.srcObject = stream;
-      videoElm.play();
-    } else {
-      const stream = await navigator.mediaDevices.getUserMedia(options);
-      let videoElm = document.querySelector(`#v-${remoteParticipantId}`);
-      videoElm.srcObject = null;
-      videoElm.srcObject = stream;
-      videoElm.play();
-    }
+    meeting.enableWebcam();
+    // const options = {
+    //   audio: false,
+    //   video: true,
+    // };
+    // if (totalParticipants == 1) {
+    //   const stream = await navigator.mediaDevices.getUserMedia(options);
+    //   let videoElm = document.getElementById(
+    //     `v-${meeting.localParticipant.id}`
+    //   );
+
+    //   videoElm.srcObject = null;
+    //   videoElm.srcObject = stream;
+    //   videoElm.play();
+    // } else {
+    //   const stream = await navigator.mediaDevices.getUserMedia(options);
+    //   let videoElm = document.querySelector(`#v-${remoteParticipantId}`);
+    //   videoElm.srcObject = null;
+    //   videoElm.srcObject = stream;
+    //   videoElm.play();
+    // }
   });
   // cam button event listener
   // camButton.addEventListener("click", () => {
@@ -604,7 +604,13 @@ function addDomEvents() {
 
   // screen share button event listener
   btnScreenShare.addEventListener("click", async () => {
-    meeting.enableScreenShare();
+    if (btnScreenShare.style.color == "grey") {
+      // btnScreenShare.style.color = "white";
+      meeting.disableScreenShare();
+    } else {
+      // btnScreenShare.style.color = "grey";
+      meeting.enableScreenShare();
+    }
   });
 
   //raise hand event
@@ -631,6 +637,7 @@ function addDomEvents() {
 
   // //leave Meeting Button
   $("#leaveCall").click(async () => {
+    participants = new Map(meeting.participants);
     meeting.leave();
     window.location.reload();
     document.getElementById("home-page").style.display = "flex";
@@ -858,6 +865,7 @@ function closeChatWrapper() {
 }
 
 function toggleControls() {
+  console.log("from toggleControls");
   if (micEnable) {
     console.log("micEnable True");
     micOn.style.display = "inline-block";
