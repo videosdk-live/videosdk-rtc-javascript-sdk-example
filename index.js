@@ -56,10 +56,10 @@ navigator.mediaDevices
   });
 
 async function tokenGeneration() {
-  if (TOKEN != "" && AUTH_URL == "") {
+  if (TOKEN != "") {
     token = TOKEN;
     console.log(token);
-  } else if (AUTH_URL != "" && TOKEN == "") {
+  } else if (AUTH_URL != "") {
     token = await window
       .fetch(AUTH_URL + "/generateJWTToken")
       .then(async (response) => {
@@ -237,10 +237,6 @@ function startMeeting(token, meetingId, name) {
     totalParticipants--;
     let vElement = document.getElementById(`v-${participant.id}`);
     vElement.parentNode.removeChild(vElement);
-    // participants = participants.filter(function (value, index, arr) {
-    //   return value == participant.id;
-    // });
-    // console.log(participants);
 
     let aElement = document.getElementById(`a-${participant.id}`);
     aElement.parentNode.removeChild(aElement);
@@ -251,12 +247,7 @@ function startMeeting(token, meetingId, name) {
   meeting.on("chat-message", (chatEvent) => {
     const { senderId, text, timestamp, senderName } = chatEvent;
     const parsedText = JSON.parse(text);
-    // if (
-    //   parsedText?.type == "raiseHand" &&
-    //   senderId != meeting.localParticipant.id //remove this for both parties
-    // ) {
-    //   console.log(chatEvent.senderName + " RAISED HAND");
-    // }
+
     if (parsedText?.type == "chat") {
       const chatBox = document.getElementById("chatArea");
       const chatTemplate = `
@@ -321,22 +312,6 @@ function startMeeting(token, meetingId, name) {
   });
 
   meeting.on("presenter-changed", (presenterId) => {
-    // if (presenterId == null) {
-    //   videoScreenShare.style.visibility = "hidden";
-    //   videoScreenShare.style.display = "none";
-    //   console.log("presneter ID :", presenterId);
-    //   console.log(
-    //     "display of videoScreenShare",
-    //     videoScreenShare.style.display
-    //   );
-    //   screenShare.removeAttribute("src");
-    //   screenShare.pause();
-    //   screenShare.load();
-    //   meeting.disableScreenShare();
-    // } else {
-    //   console.log("presenter not null");
-    //   videoScreenShare.style.display = "inline-block";
-    // }
     if (presenterId) {
       console.log(presenterId);
       videoScreenShare.style.display = "inline-block";
@@ -465,10 +440,6 @@ function createVideoElement(pId) {
   videoElement.setAttribute("id", `v-${pId}`);
   division.appendChild(videoElement);
   return division;
-  // let videoElement = document.createElement("video");
-  // videoElement.classList.add("video-frame");
-  // videoElement.setAttribute("id", `v-${pId}`);
-  // return videoElement;
 }
 
 // creating audio element
@@ -541,66 +512,13 @@ function addDomEvents() {
     videoCamOn.style.display = "none";
     videoCamOff.style.display = "inline-block";
     meeting.disableWebcam();
-    // joinPageWebcam.style.backgroundColor = "black";
-    // joinPageWebcam.srcObject = null;
-    // const options = {
-    //   audio: false,
-    //   video: true,
-    // };
-    // if (totalParticipants == 1) {
-    //   const stream = await navigator.mediaDevices.getUserMedia(options);
-    //   let videoElm = document.getElementById(
-    //     `v-${meeting.localParticipant.id}`
-    //   );
-    //   videoElm.srcObject = null;
-    // } else {
-    //   const stream = await navigator.mediaDevices.getUserMedia(options);
-    //   let videoElm = document.querySelector(`#v-${remoteParticipantId}`);
-    //   videoElm.srcObject = null;
-    // }
   });
 
   videoCamOff.addEventListener("click", async () => {
     videoCamOff.style.display = "none";
     videoCamOn.style.display = "inline-block";
     meeting.enableWebcam();
-    // const options = {
-    //   audio: false,
-    //   video: true,
-    // };
-    // if (totalParticipants == 1) {
-    //   const stream = await navigator.mediaDevices.getUserMedia(options);
-    //   let videoElm = document.getElementById(
-    //     `v-${meeting.localParticipant.id}`
-    //   );
-
-    //   videoElm.srcObject = null;
-    //   videoElm.srcObject = stream;
-    //   videoElm.play();
-    // } else {
-    //   const stream = await navigator.mediaDevices.getUserMedia(options);
-    //   let videoElm = document.querySelector(`#v-${remoteParticipantId}`);
-    //   videoElm.srcObject = null;
-    //   videoElm.srcObject = stream;
-    //   videoElm.play();
-    // }
   });
-  // cam button event listener
-  // camButton.addEventListener("click", () => {
-  //   console.log(
-  //     "display style of onCam : ",
-  //     document.getElementById("onCamera").style.display
-  //   );
-  //   if (document.getElementById("onCamera").style.display == "inline-block") {
-  //     meeting.disableWebcam();
-  //     document.getElementById("onCamera").style.display == "none";
-  //     document.getElementById("offCamera").style.display == "inline-block";
-  //   } else {
-  //     meeting.enableWebcam();
-  //     document.getElementById("onCamera").style.display == "inline-block";
-  //     document.getElementById("offCamera").style.display == "none";
-  //   }
-  // });
 
   // screen share button event listener
   btnScreenShare.addEventListener("click", async () => {
