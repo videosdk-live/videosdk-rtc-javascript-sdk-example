@@ -217,6 +217,26 @@ function startMeeting(token, meetingId, name) {
     );
   });
 
+  meeting.on("meeting-joined", () => {
+    meeting.pubSub.subscribe("CHAT", (data) => {
+      let { message, senderId, senderName, timestamp } = data;
+      const chatBox = document.getElementById("chatArea");
+      const chatTemplate = `
+          <div style="margin-bottom: 10px; ${
+            meeting.localParticipant.id == senderId && "text-align : right"
+          }">
+            <span style="font-size:12px;">${senderName}</span>
+            <div style="margin-top:5px">
+              <span style="background:${
+                meeting.localParticipant.id == senderId ? "grey" : "crimson"
+              };color:white;padding:5px;border-radius:8px">${message}<span>
+            </div>
+          </div>
+          `;
+      chatBox.insertAdjacentHTML("beforeend", chatTemplate);
+    });
+  });
+
   // Other participants
   meeting.on("participant-joined", (participant) => {
     totalParticipants++;
@@ -244,29 +264,29 @@ function startMeeting(token, meetingId, name) {
     document.getElementById(`p-${participant.id}`).remove();
   });
   //chat message event
-  meeting.on("chat-message", (chatEvent) => {
-    const { senderId, text, timestamp, senderName } = chatEvent;
-    const parsedText = JSON.parse(text);
+  // meeting.on("chat-message", (chatEvent) => {
+  //   const { senderId, text, timestamp, senderName } = chatEvent;
+  //   const parsedText = JSON.parse(text);
 
-    if (parsedText?.type == "chat") {
-      const chatBox = document.getElementById("chatArea");
-      const chatTemplate = `
-      <div style="margin-bottom: 10px; ${
-        meeting.localParticipant.id == senderId && "text-align : right"
-      }">
-        <span style="font-size:12px;">${senderName}</span>
-        <div style="margin-top:5px">
-          <span style="background:${
-            meeting.localParticipant.id == senderId ? "grey" : "crimson"
-          };color:white;padding:5px;border-radius:8px">${
-        parsedText.message
-      }<span>
-        </div>
-      </div>
-      `;
-      chatBox.insertAdjacentHTML("beforeend", chatTemplate);
-    }
-  });
+  //   if (parsedText?.type == "chat") {
+  //     const chatBox = document.getElementById("chatArea");
+  //     const chatTemplate = `
+  //     <div style="margin-bottom: 10px; ${
+  //       meeting.localParticipant.id == senderId && "text-align : right"
+  //     }">
+  //       <span style="font-size:12px;">${senderName}</span>
+  //       <div style="margin-top:5px">
+  //         <span style="background:${
+  //           meeting.localParticipant.id == senderId ? "grey" : "crimson"
+  //         };color:white;padding:5px;border-radius:8px">${
+  //       parsedText.message
+  //     }<span>
+  //       </div>
+  //     </div>
+  //     `;
+  //     chatBox.insertAdjacentHTML("beforeend", chatTemplate);
+  //   }
+  // });
 
   // //video state changed
   // meeting.on("video-state-changed", (videoEvent) => {
@@ -328,18 +348,6 @@ function startMeeting(token, meetingId, name) {
     }
   });
 
-  // meeting.on("meeting-left", () => {
-  //   window.location.reload();
-  // });
-
-  // //Entry Response
-  // meeting.on("entry-requested", (requestEvent) => {
-  //   console.log(requestEvent, "EVENT::entryRequested");
-  // });
-
-  // meeting.on("entry-responded", (respondEvent) => {
-  //   console.log(respondEvent, "EVENT::entryResponded");
-  // });
   //add DOM Events
   addDomEvents();
 }
@@ -523,10 +531,8 @@ function addDomEvents() {
   // screen share button event listener
   btnScreenShare.addEventListener("click", async () => {
     if (btnScreenShare.style.color == "grey") {
-      // btnScreenShare.style.color = "white";
       meeting.disableScreenShare();
     } else {
-      // btnScreenShare.style.color = "grey";
       meeting.enableScreenShare();
     }
   });
@@ -546,11 +552,16 @@ function addDomEvents() {
     }, 2000);
   });
 
-  // //send chat message button
+  //send chat message button
   btnSend.addEventListener("click", async () => {
     const message = document.getElementById("txtChat").value;
+    console.log("publish : ", message);
     document.getElementById("txtChat").value = "";
-    meeting.sendChatMessage(JSON.stringify({ type: "chat", message }));
+    meeting.pubSub
+      .publish("CHAT", message, { persist: true })
+      .then((res) => console.log(`response of publish : ${res}`))
+      .catch((err) => console.log(`error of publish : ${err}`));
+    // meeting.sendChatMessage(JSON.stringify({ type: "chat", message }));
   });
 
   // //leave Meeting Button
@@ -598,106 +609,6 @@ function addDomEvents() {
     meeting.stopRecording();
   });
 }
-
-// async function toggleMic() {
-// const userMicStream = await navigator.mediaDevices.getUserMedia({
-//   audio: true,
-// });
-// const micTrack = userMicStream
-//   .getTracks()
-//   .find((track) => track.kind === "audio");
-
-//   // micTrack.onmute = (event) => {
-//   //   micTrack.enabled = false;
-//   //   document.getElementById("muteMic").style.display = "block";
-//   //   document.getElementById("unmuteMic").style.display = "none";
-//   // };
-
-//   // micTrack.onunmute = (event) => {
-//   //   document.getElementById("timeline-widget").style.backgroundColor = "#fff";
-//   // };
-
-//   // if (micTrack.enabled) {
-//   //   micTrack.enabled = false;
-//   //   document.getElementById("muteMic").style.display = "block";
-//   //   document.getElementById("unmuteMic").style.display = "none";
-//   // } else {
-//   //   micTrack.enabled = true;
-//   //   document.getElementById("muteMic").style.display = "block";
-//   //   document.getElementById("unmuteMic").style.display = "none";
-//   // }
-//   console.log("mictrack enabled : ", micTrack.enabled);
-//   // if (micEnable) {
-//   //   micEnable = false;
-//   //   micEnable.enabled = false;
-//   //   document.getElementById("muteMic").style.display = "block";
-//   //   document.getElementById("unmuteMic").style.display = "none";
-//   // } else {
-//   //   micEnable = true;
-//   //   micTrack.enabled = true;
-//   //   document.getElementById("muteMic").style.display = "none";
-//   //   document.getElementById("unmuteMic").style.display = "block";
-//   // }
-//   // if (micTrack.muted) {
-//   //   // micTrack.enabled = false;
-//   //   micTrack.muted = false;
-//   //   document.getElementById("muteMic").style.display = "block";
-//   //   document.getElementById("unmuteMic").style.display = "none";
-//   // } else {
-//   //   // micTrack.enabled = true;
-//   //   micTrack.muted = true;
-//   //   document.getElementById("muteMic").style.display = "none";
-//   //   document.getElementById("unmuteMic").style.display = "block";
-//   // }
-
-//   //   micEnable = false;
-//   // } else {
-//   //   const userMicStream = await navigator.mediaDevices.getUserMedia({
-//   //     audio: true,
-//   //   });
-//   //   const micTrack = userMicStream
-//   //     .getTracks()
-//   //     .find((track) => track.kind === "audio");
-//   //   console.log(micTrack);
-//   //   document.getElementById("muteMic").style.display = "none";
-//   //   document.getElementById("unmuteMic").style.display = "block";
-//   //   micEnable = true;
-//   // }
-// }
-
-// async function toggleWebCam() {
-//   const userVideoStream = await navigator.mediaDevices
-//     .getUserMedia({
-//       video: true,
-//     })
-//     .then((videoStream) => {
-//       joinPageWebcam.srcObject = videoStream;
-//       joinPageWebcam.play();
-//     });
-//   // const videoTrack = userVideoStream
-//   //   .getTracks()
-//   //   .find((track) => track.kind === "video");
-//   // console.log(userVideoStream.getTracks());
-
-//   // if (videoTrack.enabled) {
-//   //   videoTrack.enabled =  false;
-//   // } else {
-//   //   videoTrack.enabled = true;
-//   // }
-
-//   // alert("toggle web cam");
-//   // if (webCamEnable) {
-//   //   // meeting.muteW
-//   //   document.getElementById("mutemic").style.display = "block";
-//   //   document.getElementById("unmutemic").style.display = "none";
-//   //   webCamEnable = false;
-//   // } else {
-//   //   // meeting.unmuteMic();
-//   //   document.getElementById("mutemic").style.display = "none";
-//   //   document.getElementById("unmutemic").style.display = "block";
-//   //   webCamEnable = true;
-//   // }
-// }
 
 async function toggleMic() {
   const userMicStream = await navigator.mediaDevices.getUserMedia({
