@@ -37,15 +37,25 @@ You must have the following installed:
 
    ```sh
    git clone https://github.com/videosdk-live/videosdk-rtc-javascript-sdk-example.git
+
+   cd videosdk-rtc-javascript-sdk-example
    ```
 
-3. Update the api server url in the `index.js` file that points to the authentication server.
+3. Create a new file config.js and Copy the config.example.js file's data to config.js file
+
+4. Update the TOKEN in `config.js` file.Token would be generated from dashboard `https://app.videosdk.live/dashboard`
 
    ```
-   API_SERVER_URL="http://localhost:9000"
+   TOKEN="Your Token Here"
    ```
 
-4. Run the app
+5. If one doesn't want to give their token then they can generate token using AUTH_URL of their own in `config.js` file
+
+   ```
+   AUTH_URL=one's auth url
+   ```
+
+6. Run the app
 
    ```sh
    npm install -g live-server
