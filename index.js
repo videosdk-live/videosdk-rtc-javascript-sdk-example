@@ -212,7 +212,7 @@ function startMeeting(token, meetingId, name) {
       stream,
       localParticipant,
       localParticipantAudio,
-      meeting.localParticipant.id
+      meeting.localParticipant
     );
   });
 
@@ -221,14 +221,12 @@ function startMeeting(token, meetingId, name) {
       let { message, senderId, senderName, timestamp } = data;
       const chatBox = document.getElementById("chatArea");
       const chatTemplate = `
-          <div style="margin-bottom: 10px; ${
-            meeting.localParticipant.id == senderId && "text-align : right"
-          }">
+          <div style="margin-bottom: 10px; ${meeting.localParticipant.id == senderId && "text-align : right"
+        }">
             <span style="font-size:12px;">${senderName}</span>
             <div style="margin-top:5px">
-              <span style="background:${
-                meeting.localParticipant.id == senderId ? "grey" : "crimson"
-              };color:white;padding:5px;border-radius:8px">${message}<span>
+              <span style="background:${meeting.localParticipant.id == senderId ? "grey" : "crimson"
+        };color:white;padding:5px;border-radius:8px">${message}<span>
             </div>
           </div>
           `;
@@ -240,13 +238,19 @@ function startMeeting(token, meetingId, name) {
   meeting.on("participant-joined", (participant) => {
     totalParticipants++;
     let videoElement = createVideoElement(participant.id);
+    console.log("Video Element Created");
+    let resizeObserver = new ResizeObserver(() => {
+      participant.setViewPort(videoElement.offsetWidth, videoElement.offsetHeight);
+    });
+    resizeObserver.observe(videoElement);
     let audioElement = createAudioElement(participant.id);
     remoteParticipantId = participant.id;
 
     participant.on("stream-enabled", (stream) => {
-      setTrack(stream, videoElement, audioElement, participant.id);
+      setTrack(stream, videoElement, audioElement, participant);
     });
     videoContainer.appendChild(videoElement);
+    console.log("Video Element Appended");
     videoContainer.appendChild(audioElement);
     addParticipantToList(participant);
   });
@@ -460,18 +464,19 @@ function createAudioElement(pId) {
 }
 
 //setting up tracks
-function setTrack(stream, videoElem, audioElement, id) {
+function setTrack(stream, videoElem, audioElement, participant) {
   if (stream.kind == "video") {
     console.log("video evenet");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
-    let videoElm = document.getElementById(`v-${id}`);
+    let videoElm = document.getElementById(`v-${participant.id}`);
     videoElm.srcObject = mediaStream;
     videoElm
       .play()
       .catch((error) =>
         console.error("videoElem.current.play() failed", error)
       );
+    participant.setViewPort(videoElem.offsetWidth,videoElem.offsetHeight);
   }
   if (stream.kind == "audio") {
     if (id == meeting.localParticipant.id) return;
