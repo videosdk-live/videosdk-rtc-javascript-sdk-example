@@ -479,7 +479,7 @@ function setTrack(stream, videoElem, audioElement, participant) {
     participant.setViewPort(videoElem.offsetWidth,videoElem.offsetHeight);
   }
   if (stream.kind == "audio") {
-    if (id == meeting.localParticipant.id) return;
+    if (participant.id == meeting.localParticipant.id) return;
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
     audioElement.srcObject = mediaStream;
