@@ -177,9 +177,25 @@ function createLocalParticipant() {
   videoContainer.appendChild(localParticipant);
 }
 
-function startMeeting(token, meetingId, name) {
+async function startMeeting(token, meetingId, name) {
   // Meeting config
   window.VideoSDK.config(token);
+
+  let customVideoTrack = await  window.VideoSDK.createCameraVideoTrack({
+    optimizationMode: "motion",
+    encoderConfig: "h540p_w960p",
+    facingMode: "environment",
+  });
+
+  let customAudioTrack = await VideoSDK.createMicrophoneAudioTrack({
+    encoderConfig: "high_quality",
+    noiseConfig: {
+      noiseSuppresion: true,
+      echoCancellation: true,
+      autoGainControl: true,
+    },
+  });
+
 
   // Meeting Init
   meeting = window.VideoSDK.initMeeting({
@@ -188,6 +204,8 @@ function startMeeting(token, meetingId, name) {
     micEnabled: true, // optional, default: true
     webcamEnabled: true, // optional, default: true
     maxResolution: "hd", // optional, default: "hd"
+    customCameraVideoTrack: customVideoTrack,
+    customMicrophoneAudioTrack: customAudioTrack,
   });
 
   toggleControls();
@@ -210,9 +228,9 @@ function startMeeting(token, meetingId, name) {
   meeting.localParticipant.on("stream-enabled", (stream) => {
     setTrack(
       stream,
-      localParticipant,
       localParticipantAudio,
-      meeting.localParticipant.id
+      meeting.localParticipant.id,
+      isLocal = true
     );
   });
 
@@ -244,7 +262,7 @@ function startMeeting(token, meetingId, name) {
     remoteParticipantId = participant.id;
 
     participant.on("stream-enabled", (stream) => {
-      setTrack(stream, videoElement, audioElement, participant.id);
+      setTrack(stream, audioElement, participant.id, isLocal = false);
     });
     videoContainer.appendChild(videoElement);
     videoContainer.appendChild(audioElement);
@@ -445,8 +463,11 @@ function createVideoElement(pId) {
   let videoElement = document.createElement("video");
   videoElement.classList.add("video-frame");
   videoElement.setAttribute("id", `v-${pId}`);
+  videoElement.setAttribute('playsinline', true);
+  //videoElement.setAttribute('height', '300');
+  videoElement.setAttribute('width', '300');
   division.appendChild(videoElement);
-  return division;
+  return videoElement;
 }
 
 // creating audio element
@@ -460,7 +481,7 @@ function createAudioElement(pId) {
 }
 
 //setting up tracks
-function setTrack(stream, videoElem, audioElement, id) {
+function setTrack(stream, audioElement, id, isLocal) {
   if (stream.kind == "video") {
     console.log("video evenet");
     const mediaStream = new MediaStream();
@@ -482,7 +503,7 @@ function setTrack(stream, videoElem, audioElement, id) {
       .play()
       .catch((error) => console.error("audioElem.play() failed", error));
   }
-  if (stream.kind == "share") {
+  if (stream.kind == "share" && !isLocal) {
     screenShareOn = true;
     console.log("SHARE EVENT ");
     const mediaStream = new MediaStream();
