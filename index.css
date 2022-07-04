@@ -245,7 +245,6 @@ input[type="text"]:hover {
   flex-grow: 1;
   position: absolute;
   border-radius: 10px;
-  box-shadow: 7px 7px 7px 10px rgb(91, 94, 97);
 }
 .chat-wrapper {
   height: 100%;

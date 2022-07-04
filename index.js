@@ -333,7 +333,7 @@ function startMeeting(token, meetingId, name) {
   meeting.on("presenter-changed", (presenterId) => {
     if (presenterId) {
       console.log(presenterId);
-      videoScreenShare.style.display = "inline-block";
+      //videoScreenShare.style.display = "inline-block";
     } else {
       console.log(presenterId);
       videoScreenShare.removeAttribute("src");
