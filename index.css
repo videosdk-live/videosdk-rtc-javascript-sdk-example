@@ -32,7 +32,8 @@ body {
   background-color: #1e1d1c;
 }
 .video-frame {
-  width: 95%;
+  width: 300px;
+  height: 300px;
   /* height: 650px; */
   /* height: 100%; */
   border-radius: 10px;
@@ -243,9 +244,8 @@ input[type="text"]:hover {
 
 #videoScreenShare {
   flex-grow: 1;
-  position: absolute;
+  /* position: absolute; */
   border-radius: 10px;
-  box-shadow: 7px 7px 7px 10px rgb(91, 94, 97);
 }
 .chat-wrapper {
   height: 100%;
