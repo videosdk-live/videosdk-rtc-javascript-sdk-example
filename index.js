@@ -34,8 +34,8 @@ let createMeetingFlag = 0;
 let joinMeetingFlag = 0;
 let token = "";
 let validateMeetingIdAnswer = "";
-let micEnable = true;
-let webCamEnable = true;
+let micEnable = false;
+let webCamEnable = false;
 let totalParticipants = 0;
 let remoteParticipantId = "";
 let participants = [];
@@ -181,7 +181,7 @@ async function startMeeting(token, meetingId, name) {
   // Meeting config
   window.VideoSDK.config(token);
 
-  let customVideoTrack = await  window.VideoSDK.createCameraVideoTrack({
+  let customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
     optimizationMode: "motion",
     encoderConfig: "h540p_w960p",
     facingMode: "environment",
@@ -195,7 +195,6 @@ async function startMeeting(token, meetingId, name) {
       autoGainControl: true,
     },
   });
-
 
   // Meeting Init
   meeting = window.VideoSDK.initMeeting({
@@ -230,8 +229,19 @@ async function startMeeting(token, meetingId, name) {
       stream,
       localParticipantAudio,
       meeting.localParticipant.id,
-      isLocal = true
+      (isLocal = true)
     );
+  });
+
+  meeting.localParticipant.on("stream-disabled", (stream) => {
+    if (stream.kind == "video") {
+      videoCamOn.style.display = "none";
+      videoCamOff.style.display = "inline-block";
+    }
+    if (stream.kind == "audio") {
+      micOn.style.display = "none";
+      micOff.style.display = "inline-block";
+    }
   });
 
   meeting.on("meeting-joined", () => {
@@ -262,7 +272,7 @@ async function startMeeting(token, meetingId, name) {
     remoteParticipantId = participant.id;
 
     participant.on("stream-enabled", (stream) => {
-      setTrack(stream, audioElement, participant.id, isLocal = false);
+      setTrack(stream, audioElement, participant.id, (isLocal = false));
     });
     videoContainer.appendChild(videoElement);
     videoContainer.appendChild(audioElement);
@@ -463,9 +473,9 @@ function createVideoElement(pId) {
   let videoElement = document.createElement("video");
   videoElement.classList.add("video-frame");
   videoElement.setAttribute("id", `v-${pId}`);
-  videoElement.setAttribute('playsinline', true);
+  videoElement.setAttribute("playsinline", true);
   //videoElement.setAttribute('height', '300');
-  videoElement.setAttribute('width', '300');
+  videoElement.setAttribute("width", "300");
   division.appendChild(videoElement);
   return videoElement;
 }
@@ -483,6 +493,10 @@ function createAudioElement(pId) {
 //setting up tracks
 function setTrack(stream, audioElement, id, isLocal) {
   if (stream.kind == "video") {
+    if (isLocal) {
+      videoCamOff.style.display = "none";
+      videoCamOn.style.display = "inline-block";
+    }
     console.log("video evenet");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
@@ -495,7 +509,10 @@ function setTrack(stream, audioElement, id, isLocal) {
       );
   }
   if (stream.kind == "audio") {
-    if (id == meeting.localParticipant.id) return;
+    if (isLocal) {
+      micOff.style.display = "none";
+      micOn.style.display = "inline-block";
+    }
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
     audioElement.srcObject = mediaStream;
@@ -524,27 +541,19 @@ function addDomEvents() {
   // mic button event listener
   micOn.addEventListener("click", () => {
     console.log("Mic-on pressed");
-    meeting.unmuteMic();
-    micOn.style.display = "none";
-    micOff.style.display = "inline-block";
+    meeting.muteMic();
   });
 
   micOff.addEventListener("click", () => {
     console.log("Mic-f pressed");
-    meeting.muteMic();
-    micOff.style.display = "none";
-    micOn.style.display = "inline-block";
+    meeting.unmuteMic();
   });
 
   videoCamOn.addEventListener("click", async () => {
-    videoCamOn.style.display = "none";
-    videoCamOff.style.display = "inline-block";
     meeting.disableWebcam();
   });
 
   videoCamOff.addEventListener("click", async () => {
-    videoCamOff.style.display = "none";
-    videoCamOn.style.display = "inline-block";
     meeting.enableWebcam();
   });
 
