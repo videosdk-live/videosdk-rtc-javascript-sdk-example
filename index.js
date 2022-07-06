@@ -228,7 +228,7 @@ async function startMeeting(token, meetingId, name) {
     setTrack(
       stream,
       localParticipantAudio,
-      meeting.localParticipant.id,
+      meeting.localParticipant,
       (isLocal = true)
     );
   });
@@ -268,13 +268,22 @@ async function startMeeting(token, meetingId, name) {
   meeting.on("participant-joined", (participant) => {
     totalParticipants++;
     let videoElement = createVideoElement(participant.id);
+    console.log("Video Element Created");
+    let resizeObserver = new ResizeObserver(() => {
+      participant.setViewPort(
+        videoElement.offsetWidth,
+        videoElement.offsetHeight
+      );
+    });
+    resizeObserver.observe(videoElement);
     let audioElement = createAudioElement(participant.id);
     remoteParticipantId = participant.id;
 
     participant.on("stream-enabled", (stream) => {
-      setTrack(stream, audioElement, participant.id, (isLocal = false));
+      setTrack(stream, audioElement, participant, (isLocal = false));
     });
     videoContainer.appendChild(videoElement);
+    console.log("Video Element Appended");
     videoContainer.appendChild(audioElement);
     addParticipantToList(participant);
   });
@@ -491,7 +500,8 @@ function createAudioElement(pId) {
 }
 
 //setting up tracks
-function setTrack(stream, audioElement, id, isLocal) {
+
+function setTrack(stream, audioElement, participant, isLocal) {
   if (stream.kind == "video") {
     if (isLocal) {
       videoCamOff.style.display = "none";
@@ -500,13 +510,14 @@ function setTrack(stream, audioElement, id, isLocal) {
     console.log("video evenet");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
-    let videoElm = document.getElementById(`v-${id}`);
+    let videoElm = document.getElementById(`v-${participant.id}`);
     videoElm.srcObject = mediaStream;
     videoElm
       .play()
       .catch((error) =>
         console.error("videoElem.current.play() failed", error)
       );
+    participant.setViewPort(videoElm.offsetWidth, videoElm.offsetHeight);
   }
   if (stream.kind == "audio") {
     if (isLocal) {
