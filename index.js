@@ -523,6 +523,7 @@ function setTrack(stream, audioElement, participant, isLocal) {
     if (isLocal) {
       micOff.style.display = "none";
       micOn.style.display = "inline-block";
+      return;
     }
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
