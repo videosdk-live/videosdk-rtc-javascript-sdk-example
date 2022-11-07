@@ -34,8 +34,8 @@ let createMeetingFlag = 0;
 let joinMeetingFlag = 0;
 let token = "";
 let validateMeetingIdAnswer = "";
-let micEnable = false;
-let webCamEnable = false;
+let micEnable = true;
+let webCamEnable = true;
 let totalParticipants = 0;
 let remoteParticipantId = "";
 let participants = [];
@@ -43,17 +43,7 @@ let participants = [];
 let joinPageWebcam = document.getElementById("joinCam");
 let meetingCode = "";
 let screenShareOn = false;
-
-navigator.mediaDevices
-  .getUserMedia({
-    video: true,
-    audio: false,
-  })
-  .then((stream) => {
-    // console.log(stream);
-    joinPageWebcam.srcObject = stream;
-    joinPageWebcam.play();
-  });
+let joinPageVideoStream = null;
 
 async function tokenGeneration() {
   if (TOKEN != "") {
@@ -102,6 +92,16 @@ async function validateMeeting() {
         return;
       });
     if (result.meetingId === meetingId) {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+          audio: false,
+        })
+        .then((stream) => {
+          joinPageVideoStream = stream;
+          joinPageWebcam.srcObject = stream;
+          joinPageWebcam.play();
+        });
       document.getElementById("joinPage").style.display = "flex";
       document.getElementById("home-page").style.display = "none";
       return meetingId;
@@ -123,6 +123,16 @@ async function validateMeeting() {
         if (meetingId == undefined) {
           return alert("Invalid Meeting ID ");
         } else {
+          navigator.mediaDevices
+            .getUserMedia({
+              video: true,
+              audio: false,
+            })
+            .then((stream) => {
+              joinPageVideoStream = stream;
+              joinPageWebcam.srcObject = stream;
+              joinPageWebcam.play();
+            });
           document.getElementById("joinPage").style.display = "flex";
           document.getElementById("home-page").style.display = "none";
           return meetingId;
@@ -178,6 +188,15 @@ function createLocalParticipant() {
 }
 
 async function startMeeting(token, meetingId, name) {
+  if (joinPageVideoStream !== null) {
+    const tracks = joinPageVideoStream.getTracks();
+    tracks.forEach((track) => {
+      track.stop();
+    });
+    joinPageVideoStream = null;
+    joinPageWebcam.srcObject = null;
+  }
+
   // Meeting config
   window.VideoSDK.config(token);
 
@@ -390,6 +409,7 @@ async function startMeeting(token, meetingId, name) {
 
 // joinMeeting();
 async function joinMeeting(newMeeting) {
+  console.log("$$$$$$$$$ &&&&&&&&&&");
   tokenGeneration();
   let joinMeetingName =
     document.getElementById("joinMeetingName").value || "JSSDK";
@@ -652,18 +672,13 @@ function addDomEvents() {
 }
 
 async function toggleMic() {
-  const userMicStream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-  });
   // console.log("mic enabled : ", userMicStream.getAudioTracks()[0].enabled);
   if (micEnable) {
-    userMicStream.getAudioTracks()[0].stop();
     document.getElementById("micButton").style.backgroundColor = "red";
     document.getElementById("muteMic").style.display = "inline-block";
     document.getElementById("unmuteMic").style.display = "none";
     micEnable = false;
   } else {
-    userMicStream.getAudioTracks()[0].enabled = true;
     micEnable = true;
     document.getElementById("micButton").style.backgroundColor = "#DCDCDC";
     document.getElementById("muteMic").style.display = "none";
@@ -671,13 +686,18 @@ async function toggleMic() {
   }
 }
 async function toggleWebCam() {
-  if (webCamEnable) {
+  if (joinPageVideoStream) {
     joinPageWebcam.style.backgroundColor = "black";
     joinPageWebcam.srcObject = null;
     document.getElementById("camButton").style.backgroundColor = "red";
     document.getElementById("offCamera").style.display = "inline-block";
     document.getElementById("onCamera").style.display = "none";
     webCamEnable = false;
+    const tracks = joinPageVideoStream.getTracks();
+    tracks.forEach((track) => {
+      track.stop();
+    });
+    joinPageVideoStream = null;
   } else {
     navigator.mediaDevices
       .getUserMedia({
@@ -685,7 +705,7 @@ async function toggleWebCam() {
         audio: false,
       })
       .then((stream) => {
-        // console.log(stream);
+        joinPageVideoStream = stream;
         joinPageWebcam.srcObject = stream;
         joinPageWebcam.play();
       });
