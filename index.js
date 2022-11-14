@@ -409,7 +409,6 @@ async function startMeeting(token, meetingId, name) {
 
 // joinMeeting();
 async function joinMeeting(newMeeting) {
-  console.log("$$$$$$$$$ &&&&&&&&&&");
   tokenGeneration();
   let joinMeetingName =
     document.getElementById("joinMeetingName").value || "JSSDK";
@@ -527,7 +526,6 @@ function setTrack(stream, audioElement, participant, isLocal) {
       videoCamOff.style.display = "none";
       videoCamOn.style.display = "inline-block";
     }
-    console.log("video evenet");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
     let videoElm = document.getElementById(`v-${participant.id}`);
@@ -554,7 +552,6 @@ function setTrack(stream, audioElement, participant, isLocal) {
   }
   if (stream.kind == "share" && !isLocal) {
     screenShareOn = true;
-    console.log("SHARE EVENT ");
     const mediaStream = new MediaStream();
     mediaStream.addTrack(stream.track);
     videoScreenShare.srcObject = mediaStream;
@@ -672,7 +669,6 @@ function addDomEvents() {
 }
 
 async function toggleMic() {
-  // console.log("mic enabled : ", userMicStream.getAudioTracks()[0].enabled);
   if (micEnable) {
     document.getElementById("micButton").style.backgroundColor = "red";
     document.getElementById("muteMic").style.display = "inline-block";
