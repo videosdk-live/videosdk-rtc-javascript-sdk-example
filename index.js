@@ -588,11 +588,12 @@ function addDomEvents() {
 
   // screen share button event listener
   btnScreenShare.addEventListener("click", async () => {
-    if (btnScreenShare.style.color == "grey") {
-      meeting.disableScreenShare();
-    } else {
-      meeting.enableScreenShare();
-    }
+    console.log(meeting.participants[0]);
+    // if (btnScreenShare.style.color == "grey") {
+    //   meeting.disableScreenShare();
+    // } else {
+    //   meeting.enableScreenShare();
+    // }
   });
 
   //raise hand event
