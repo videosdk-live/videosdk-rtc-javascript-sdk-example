@@ -2,7 +2,7 @@
 
 ## What is it?
 
-This code sample demonstrates a one-to-one and group video call application built with [Video SDK RTC Javascript SDK](https://docs.videosdk.live/docs/guide/video-and-audio-calling-api-sdk/javascript-sdk)
+This code sample demonstrates a one-to-one and group video call application built with [Video SDK RTC Javascript SDK](https://docs.videosdk.live/javascript/guide/video-and-audio-calling-api-sdk/javascript-sdk)
 
 - Built for serverless video calling experience.
 - Scale it upto 5,000 participants with low code.
@@ -62,7 +62,7 @@ You must have the following installed:
    live-server --port=8000
    ```
 
-For more information, visit [official documentation](https://docs.videosdk.live/docs/guide/video-and-audio-calling-api-sdk/getting-started)
+For more information, visit [official documentation](https://docs.videosdk.live/javascript/guide/video-and-audio-calling-api-sdk/getting-started)
 
 Related
 
