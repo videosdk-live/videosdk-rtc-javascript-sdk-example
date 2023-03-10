@@ -200,12 +200,11 @@ async function startMeeting(token, meetingId, name) {
   // Meeting config
   window.VideoSDK.config(token);
 
-  let customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
+  let customVideoTrack = await VideoSDK.createCameraVideoTrack({
     optimizationMode: "motion",
-    encoderConfig: "h540p_w960p",
+    encoderConfig: "h720p_w1280p",
     facingMode: "environment",
   });
-
   let customAudioTrack = await VideoSDK.createMicrophoneAudioTrack({
     encoderConfig: "high_quality",
     noiseConfig: {
@@ -222,7 +221,7 @@ async function startMeeting(token, meetingId, name) {
     micEnabled: true, // optional, default: true
     webcamEnabled: true, // optional, default: true
     maxResolution: "hd", // optional, default: "hd"
-    customCameraVideoTrack: customVideoTrack,
+    customCameraVideoTrack: customCameraVideoTrack,
     customMicrophoneAudioTrack: customAudioTrack,
   });
 
@@ -244,6 +243,7 @@ async function startMeeting(token, meetingId, name) {
 
   // Setting local participant stream
   meeting.localParticipant.on("stream-enabled", (stream) => {
+    console.log(stream);
     setTrack(
       stream,
       localParticipantAudio,
@@ -289,12 +289,12 @@ async function startMeeting(token, meetingId, name) {
     let videoElement = createVideoElement(participant.id);
     console.log("Video Element Created");
     let resizeObserver = new ResizeObserver(() => {
-      participant.setViewPort(
-        videoElement.offsetWidth,
-        videoElement.offsetHeight
-      );
+      // participant.setViewPort(
+      //   videoElement.offsetWidth,
+      //   videoElement.offsetHeight
+      // );
     });
-    resizeObserver.observe(videoElement);
+    // resizeObserver.observe(videoElement);
     let audioElement = createAudioElement(participant.id);
     remoteParticipantId = participant.id;
 
@@ -305,6 +305,10 @@ async function startMeeting(token, meetingId, name) {
     console.log("Video Element Appended");
     videoContainer.appendChild(audioElement);
     addParticipantToList(participant);
+  });
+
+  meeting.on("meeting-state-changed", (data) => {
+    console.log(data);
   });
 
   // participants left
@@ -535,7 +539,7 @@ function setTrack(stream, audioElement, participant, isLocal) {
       .catch((error) =>
         console.error("videoElem.current.play() failed", error)
       );
-    participant.setViewPort(videoElm.offsetWidth, videoElm.offsetHeight);
+    // participant.setViewPort(videoElm.offsetWidth, videoElm.offsetHeight);
   }
   if (stream.kind == "audio") {
     if (isLocal) {
@@ -573,9 +577,16 @@ function addDomEvents() {
     meeting.muteMic();
   });
 
-  micOff.addEventListener("click", () => {
-    console.log("Mic-f pressed");
-    meeting.unmuteMic();
+  micOff.addEventListener("click", async () => {
+    const noiseProcessor = new window.VideoSDKNoiseSuppressor();
+
+    // Getting stream from mic
+    const stream = await window.VideoSDK.createMicrophoneAudioTrack({});
+    const processedStream = await noiseProcessor.getNoiseSuppressedAudioStream(
+      stream
+    );
+
+    meeting.unmuteMic(processedStream);
   });
 
   videoCamOn.addEventListener("click", async () => {
@@ -583,16 +594,37 @@ function addDomEvents() {
   });
 
   videoCamOff.addEventListener("click", async () => {
-    meeting.enableWebcam();
+    let processor = new window.VirtualBackgroundProcessor();
+    await processor.init();
+    const config = {
+      type: "image", // "blur"
+      imageUrl: "https://cdn.videosdk.live/virtual-background/cloud.jpeg",
+      // Here is a list of background images you can use for your project.
+      // imageUrl: "https://cdn.videosdk.live/virtual-background/beach.jpeg",
+      // imageUrl: "https://cdn.videosdk.live/virtual-background/san-fran.jpeg",
+      // imageUrl: "https://cdn.videosdk.live/virtual-background/paper-wall.jpeg",
+    };
+
+    // Getting stream from webcam
+    const stream = await window.VideoSDK.createCameraVideoTrack({});
+    const processedStream = await processor.start(stream, config);
+
+    meeting.enableWebcam(processedStream);
   });
 
   // screen share button event listener
   btnScreenShare.addEventListener("click", async () => {
-    if (btnScreenShare.style.color == "grey") {
-      meeting.disableScreenShare();
-    } else {
-      meeting.enableScreenShare();
-    }
+    let customTrack = await VideoSDK.createCameraVideoTrack({
+      optimizationMode: "motion",
+      encoderConfig: "h720p_w1280p_low_bitrate",
+      facingMode: "environment",
+    });
+    meeting.changeWebcam(customTrack);
+    // if (btnScreenShare.style.color == "grey") {
+    //   meeting.disableScreenShare();
+    // } else {
+    //   meeting.enableScreenShare();
+    // }
   });
 
   //raise hand event
