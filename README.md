@@ -62,7 +62,7 @@ You must have the following installed:
    live-server --port=8000
    ```
 
-For more information, visit [official documentation](https://docs.videosdk.live/javascript/guide/video-and-audio-calling-api-sdk/getting-started)
+For more information, visit [official documentation](https://docs.videosdk.live/javascript/guide/video-and-audio-calling-api-sdk/quick-start)
 
 Related
 
