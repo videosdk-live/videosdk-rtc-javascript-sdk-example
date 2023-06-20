@@ -202,11 +202,10 @@ async function startMeeting(token, meetingId, name) {
 
   let customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
     optimizationMode: "motion",
-    encoderConfig: "h540p_w960p",
-    facingMode: "environment",
+    multiStream: false,
   });
 
-  let customAudioTrack = await VideoSDK.createMicrophoneAudioTrack({
+  let customAudioTrack = await window.VideoSDK.createMicrophoneAudioTrack({
     encoderConfig: "high_quality",
     noiseConfig: {
       noiseSuppresion: true,
@@ -583,7 +582,11 @@ function addDomEvents() {
   });
 
   videoCamOff.addEventListener("click", async () => {
-    meeting.enableWebcam();
+    let customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
+      optimizationMode: "motion",
+      multiStream: false,
+    });
+    meeting.enableWebcam(customVideoTrack);
   });
 
   // screen share button event listener
