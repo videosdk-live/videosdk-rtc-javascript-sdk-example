@@ -342,37 +342,6 @@ async function startMeeting(token, meetingId, name) {
   //   }
   // });
 
-  // //video state changed
-  // meeting.on("video-state-changed", (videoEvent) => {
-  //   const { status, link, currentTime } = videoEvent;
-
-  //   switch (status) {
-  //     case "started":
-  //       videoPlayback.setAttribute("src", link);
-  //       videoPlayback.play();
-  //       break;
-  //     case "stopped":
-  //       console.log("stopped");
-  //       videoPlayback.removeAttribute("src");
-  //       videoPlayback.pause();
-  //       videoPlayback.load();
-  //       break;
-  //     case "resumed":
-  //       videoPlayback.play();
-  //       break;
-  //     case "paused":
-  //       videoPlayback.currentTime = currentTime;
-  //       videoPlayback.pause();
-  //       break;
-
-  //     case "seeked":
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-  // });
-
   //recording events
   meeting.on("recording-started", () => {
     console.log("RECORDING STARTED EVENT");
@@ -639,27 +608,6 @@ function addDomEvents() {
     window.location.reload();
   });
 
-  // //startVideo button events [playing VIDEO.MP4]
-  // startVideoBtn.addEventListener("click", async () => {
-  //   meeting.startVideo({ link: "/video.mp4" });
-  // });
-
-  // //end video playback
-  // stopVideoBtn.addEventListener("click", async () => {
-  //   meeting.stopVideo();
-  // });
-  // //resume paused video
-  // resumeVideoBtn.addEventListener("click", async () => {
-  //   meeting.resumeVideo();
-  // });
-  // //pause playing video
-  // pauseVideoBtn.addEventListener("click", async () => {
-  //   meeting.pauseVideo({ currentTime: videoPlayback.currentTime });
-  // });
-  // //seek playing video
-  // seekVideoBtn.addEventListener("click", async () => {
-  //   meeting.seekVideo({ currentTime: 40 });
-  // });
   // //startRecording
   btnStartRecording.addEventListener("click", async () => {
     console.log("btnRecording is clicked");
