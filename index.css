@@ -286,3 +286,24 @@ input[type="text"]:hover {
   height: fit-content;
   display: none;
 }
+
+.video-wrapper {
+  position: relative;
+  display: inline-flex;
+  /* width:300px;
+  background-color: #d3382d; */
+  /* Adjust the height as needed */
+}
+
+.capture-button {
+  display: none;
+  position: relative;
+  margin-top: -270px;
+  margin-left: 270px;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  background-color: #d3382d; /* Change the background color as needed */
+  color: #fff; /* Change the text color as needed */
+  border: none;
+  cursor: pointer;
+}

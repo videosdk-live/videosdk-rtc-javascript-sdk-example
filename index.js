@@ -26,6 +26,9 @@ let btnStopRecording = document.getElementById("btnStopRecording");
 //videoPlayback DIV
 let videoPlayback = document.getElementById("videoPlayback");
 
+let captureImage = document.getElementById("captureImage");
+let captureImageDiv = document.getElementById("imageCapture");
+
 let meeting = "";
 // Local participants
 let localParticipant;
@@ -262,6 +265,52 @@ async function startMeeting(token, meetingId, name) {
     }
   });
 
+  async function captureAndStoreImage() {
+    // capture image
+    const base64Data = await meeting.localParticipant.captureImage();
+    const fileName = "myFile.jpeg";
+
+    const fileUrl = await meeting.uploadBase64File({
+      base64Data,
+      token,
+      fileName,
+    });
+
+    meeting.pubSub
+      .publish("IMAGE_TRANSFER", fileUrl, {
+        persist: false,
+        sendOnly: [senderId],
+      })
+      .then((res) => console.log(`response of publish : ${res}`))
+      .catch((err) => console.log(`error of publish : ${err}`));
+  }
+
+  const _handleOnImageCaptureMessageReceived = (message) => {
+    try {
+      if (message.senderId !== meeting.localParticipant.id) {
+        // capture and store image when message received
+        captureAndStoreImage();
+      }
+    } catch (err) {
+      console.log("error on image capture", err);
+    }
+  };
+
+  async function captureImageAndDisplay(message) {
+    let base64 = await meeting.fetchBase64File({
+      url: message.message,
+      token,
+    });
+    base64 = "data:data:image/jpeg;base64," + base64;
+    captureImageDiv.style.display = "block";
+    captureImage.src = base64;
+    captureImage.onload = function () {
+      alert(this.width + "x" + this.height);
+    };
+    captureImage.style.height = 400;
+    captureImage.style.width = 400;
+  }
+
   meeting.on("meeting-joined", () => {
     meeting.pubSub.subscribe("CHAT", (data) => {
       let { message, senderId, senderName, timestamp } = data;
@@ -279,6 +328,16 @@ async function startMeeting(token, meetingId, name) {
           </div>
           `;
       chatBox.insertAdjacentHTML("beforeend", chatTemplate);
+    });
+
+    meeting.pubSub.subscribe("IMAGE_CAPTURE", (data) => {
+      _handleOnImageCaptureMessageReceived(data);
+    });
+
+    meeting.pubSub.subscribe("IMAGE_TRANSFER", (data) => {
+      if (data.senderId !== meeting.localParticipant.id) {
+        captureImageAndDisplay(data);
+      }
     });
   });
 
@@ -317,30 +376,6 @@ async function startMeeting(token, meetingId, name) {
     //remove it from participant list participantId;
     document.getElementById(`p-${participant.id}`).remove();
   });
-  //chat message event
-  // meeting.on("chat-message", (chatEvent) => {
-  //   const { senderId, text, timestamp, senderName } = chatEvent;
-  //   const parsedText = JSON.parse(text);
-
-  //   if (parsedText?.type == "chat") {
-  //     const chatBox = document.getElementById("chatArea");
-  //     const chatTemplate = `
-  //     <div style="margin-bottom: 10px; ${
-  //       meeting.localParticipant.id == senderId && "text-align : right"
-  //     }">
-  //       <span style="font-size:12px;">${senderName}</span>
-  //       <div style="margin-top:5px">
-  //         <span style="background:${
-  //           meeting.localParticipant.id == senderId ? "grey" : "crimson"
-  //         };color:white;padding:5px;border-radius:8px">${
-  //       parsedText.message
-  //     }<span>
-  //       </div>
-  //     </div>
-  //     `;
-  //     chatBox.insertAdjacentHTML("beforeend", chatTemplate);
-  //   }
-  // });
 
   //recording events
   meeting.on("recording-started", () => {
@@ -460,20 +495,78 @@ async function joinMeeting(newMeeting) {
   //set meetingId
 }
 
-// creating video element
+function sendRequest({ participantId }) {
+  // Pass the participantId of the participant to whom you want to capture an image
+  // Here, it will be Participant B id, because we want to capture the image of Participant B
+
+  let message = "Sending request to capture image";
+  meeting.pubSub
+    .publish("IMAGE_CAPTURE", message, {
+      persist: false,
+      sendOnly: [participantId],
+    })
+    .then((res) => console.log(`response of publish : ${res}`))
+    .catch((err) => console.log(`error of publish : ${err}`));
+}
+
 function createVideoElement(pId) {
-  let division;
-  division = document.createElement("div");
-  division.setAttribute("id", "video-frame-container");
+  // Create outer div
+  let division = document.createElement("div");
+  division.setAttribute("id", `video-frame-container-${pId}`);
   division.className = `v-${pId}`;
+
+  // Create wrapper div
+  let wrapperDiv = document.createElement("div");
+
+  // Create video element
   let videoElement = document.createElement("video");
   videoElement.classList.add("video-frame");
   videoElement.setAttribute("id", `v-${pId}`);
   videoElement.setAttribute("playsinline", true);
-  //videoElement.setAttribute('height', '300');
   videoElement.setAttribute("width", "300");
-  division.appendChild(videoElement);
-  return videoElement;
+
+  // Create button element
+  let buttonElement = document.createElement("button");
+  buttonElement.setAttribute("id", `btnCaptureImage-${pId}`);
+  buttonElement.textContent = "CaptureImage";
+  buttonElement.classList.add("capture-button");
+
+  // Append video and button elements to the wrapper div
+  wrapperDiv.appendChild(videoElement);
+  wrapperDiv.appendChild(buttonElement);
+
+  // Append the wrapper div before the video element
+  division.appendChild(wrapperDiv);
+
+  // Set up event listener for hover effect
+
+  wrapperDiv.addEventListener("mouseover", function () {
+    buttonElement.style.display = "block";
+  });
+
+  wrapperDiv.addEventListener("mouseout", function () {
+    buttonElement.style.display = "none";
+  });
+
+  wrapperDiv.style.width = `${videoElement.getAttribute("width")}px`;
+  wrapperDiv.style.height = `${videoElement.getAttribute("height")}px`;
+
+  buttonElement.addEventListener("click", async function () {
+    if (pId == meeting.localParticipant.id) {
+      const base64Data = await meeting.localParticipant.captureImage();
+      base64 = "data:data:image/jpeg;base64," + base64Data;
+      captureImageDiv.style.display = "block";
+      captureImage.src = base64;
+      captureImage.onload = function () {
+        alert(this.width + "x" + this.height);
+      };
+    } else {
+      let participantId = await participants.get(pId);
+      console.log("participantId", participantId);
+      sendRequest({ participantId: participantId.id });
+    }
+  });
+  return division;
 }
 
 // creating audio element
