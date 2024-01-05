@@ -40,6 +40,7 @@ body {
   /* transform: rotate("90"); */
   object-fit: cover;
   margin: 10px;
+  background: #000;
   border: 1px solid lightslategrey;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
@@ -110,7 +111,7 @@ input[type="text"]:hover {
   /* width: 100%;
   height: 100%; */
   object-fit: cover;
-  /* background-color: #ccc; */
+  background-color: #000;
 }
 .video-view .video-content {
   position: absolute;
@@ -285,4 +286,13 @@ input[type="text"]:hover {
   margin-right: 10px;
   height: fit-content;
   display: none;
+}
+
+.select-class {
+  background-color: #212032;
+  color: aliceblue;
+  border: 1px solid gray;
+  border-radius: 5px;
+  padding: 6px;
+  width:210px
 }
