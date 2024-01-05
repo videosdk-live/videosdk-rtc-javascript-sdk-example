@@ -51,81 +51,11 @@
     </style>
   </head>
   <body>
-    <!--home-page start-->
-    <div class="home-page" id="home-page">
-      <div class="flex" style="margin-top: 300px">
-        <div class="flex-container col-auto">
-          <center>
-            <button
-              class="btn btn-primary"
-              style="border-radius: 5px"
-              id="meetingJoinButton"
-              onclick="joinMeeting(true)"
-            >
-              Create Meeting
-            </button>
-          </center>
-        </div>
-        <div class="flex-container">
-          <center>
-            <br />
-            <!--<hr style="background-color: grey; width: 300px" />-->
-            <center style="color: grey">OR</center>
-          </center>
-        </div>
-        <div class="flex-container" style="margin-top: 25px">
-          <center>
-            <div class="col-auto" style="width: 500px; margin-left: 70px">
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <div
-                    class="input-group-text"
-                    style="
-                      background-color: #212032;
-                      padding: 12px;
-                      margin-top: -15px;
-                    "
-                  >
-                    <img
-                      src="./assets/icons/svg-path.svg"
-                      height="25px"
-                      width="25px"
-                    />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="joinMeetingId"
-                  placeholder="Enter Meeting Code"
-                />
-                <div class="input-group-append">
-                  <button
-                    class="btn btn-primary"
-                    style="
-                      border-radius: 5px;
-                      margin-left: 7px;
-                      margin-top: -5px;
-                      height: 50px;
-                      height: 40px;
-                    "
-                    id="meetingJoinButton"
-                    onclick="validateMeeting()"
-                  >
-                    Join Meeting
-                  </button>
-                </div>
-              </div>
-            </div>
-          </center>
-        </div>
-      </div>
-    </div>
     <!--join page container start-->
     <div
       id="joinPage"
       class="main-bg"
-      style="display: none; margin-left: -15px"
+      style="display: flex; margin-left: -15px"
     >
       <div style="margin: auto; display: flex">
         <!--join screen left grid start-->
@@ -133,7 +63,6 @@
           class="join-left"
           style="
             /* border: 1px solid black; */
-
             width: 650px;
             height: 350px;
             margin-right: 30px;
@@ -156,38 +85,37 @@
                   0 6px 6px rgba(0, 0, 0, 0.23);
               "
             ></video>
-
             <div class="input-group mb-3 video-content">
               <button
-                style="border-radius: 20px; height: 50px; width: 50px"
+                style="border-radius: 20px; height: 50px; width: 50px; background-color: red;"
                 id="camButton"
                 onclick="toggleWebCam()"
               >
                 <i
                   class="bi bi-camera-video-fill"
-                  style="color: black; font-size: 21px"
+                  style="color: black; font-size: 21px; display: none"
                   id="onCamera"
                 ></i>
                 <i
                   class="bi bi-camera-video-off-fill"
-                  style="color: black; font-size: 21px; display: none"
+                  style="color: black; font-size: 21px; "
                   id="offCamera"
                 ></i>
               </button>
-
               <button
                 style="
                   border-radius: 20px;
                   height: 50px;
                   width: 50px;
                   margin-left: 5px;
+                  background-color: red;
                 "
                 id="micButton"
                 onclick="toggleMic()"
               >
                 <i
                   class="bi bi-mic-mute-fill"
-                  style="color: black; font-size: 21px; display: inline-block"
+                  style="color: black; font-size: 21px;"
                   id="muteMic"
                 ></i>
                 <i
@@ -198,44 +126,211 @@
               </button>
             </div>
           </div>
+          <div style="margin-top: 12px;display: grid; gap: 6px; grid-template-columns: auto auto auto; ">
+         <div>
+          <label style="color: white;">Camera</label>
+          <select style="column-span: 3;" class="select-class" id="cameraDeviceDropDown" onchange="enableCam()"></select>
         </div>
-
+        <div>
+          <label style="color: white;">Microphone</label>
+          <select style="column-span: 3;" class="select-class" id="microphoneDeviceDropDown"></select>
+        </div>
+        <div>
+          <label style="color: white;">Speakers</label>
+          <select style="column-span: 3;" class="select-class" id="playBackDeviceDropDown"></select>
+        </div>
+        </div>
+        </div>
         <!--join screen right grid start-->
-        <div class="join-right" style="width: 350px">
-          <h1 style="text-align: center">JOIN PAGE</h1>
-          <div>
-            <div class="class-control row" style="margin-top: 120px">
-              <div class="col-1">
-                <img
-                  src="./assets/icons/svg-path.svg"
-                  height="25px"
-                  width="25px"
-                />
-              </div>
-              <div class="col-8">
-                <input
-                  type="text"
-                  id="joinMeetingName"
-                  placeholder="Name Of Participant"
-                  class="form-control"
-                />
-              </div>
-              <div class="col-2" style="margin-top: -5px">
+        <div class="join-right" style="margin-left:48px; width: 400px; position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+         
+        
+          <div class="flex">
+            <div class="flex-container col-auto">
+              <center>
                 <button
-                  id="meetingJoinButton"
-                  onclick="joinMeeting()"
-                  style="margin-left: 50px; width: 130px; border-radius: 5px"
                   class="btn btn-primary"
+                  style="border-radius: 5px"
+                  id="meetingJoinButton"
+                  onclick="joinMeeting(true)"
                 >
-                  Join Meeting
+                  Create Meeting
                 </button>
-              </div>
+              </center>
+            </div>
+            <div class="flex-container">
+              <center>
+                <br />
+                <!--<hr style="background-color: grey; width: 300px" />-->
+                <center style="color: grey">OR</center>
+              </center>
+            </div>
+            <div class="flex-container" style="margin-top: 25px">
+              <center>
+                <div class="col-auto" style="width: 500px; margin-left: 70px">
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <div
+                        class="input-group-text"
+                        style="
+                          background-color: #212032;
+                          padding: 12px;
+                          margin-top: -15px;
+                        "
+                      >
+                        <img
+                          src="./assets/icons/svg-path.svg"
+                          height="25px"
+                          width="25px"
+                        />
+                      </div>
+                    </div>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="joinMeetingId"
+                      placeholder="Enter Meeting Code"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        class="btn btn-primary"
+                        style="
+                          border-radius: 5px;
+                          margin-left: 7px;
+                          margin-top: -5px;
+                          height: 50px;
+                          height: 40px;
+                        "
+                        id="meetingJoinButton"
+                        onclick="joinMeeting(false)"
+                      >
+                        Join Meeting
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </center>
             </div>
           </div>
         </div>
         <!--join screen right grid end-->
       </div>
     </div>
+
+    <!-- Common Functionalityes -->
+    <!--<div style="position: absolute; left: 5%; bottom: 20px">
+      <button class="btn primary text-white" id="startRecording-btn">
+        Start Recording
+      </button>
+      <button class="btn primary text-white" id="stopRecording-btn">
+        Stop Recording
+      </button>
+      <button class="btn primary text-white" id="mic-btn">Mute Mic</button>
+      <button class="btn primary text-white" id="cam-btn">Disable Cam</button>
+      <button class="btn primary text-white" id="ss-btn">
+        Share Entire Screen
+      </button>
+      <button
+        style="display: none"
+        class="btn primary text-white"
+        id="raiseHand-btn"
+      >
+        RaiseHand
+      </button>
+      <button class="btn primary text-white" id="leaveMeeting-btn">
+        Leave Meeting
+      </button>
+      <button class="btn primary text-white" id="endMeeting-btn">
+        End Meeting
+      </button>
+    </div>
+     Video Functionalities 
+    <div style="position: absolute; left: 20%; bottom: 65px">
+      <button class="btn primary text-white" id="startVideo-btn">
+        start Video
+      </button>
+      <button class="btn primary text-white" id="stopVideo-btn">
+        Stop Video
+      </button>
+      <button class="btn primary text-white" id="pauseVideo-btn">
+        pause Video
+      </button>
+      <button class="btn primary text-white" id="resumeVideo-btn">
+        Resume Video
+      </button>
+      <button class="btn primary text-white" id="seekVideo-btn">
+        seek video
+      </button>
+    </div>
+
+    <div id="videoContainer"></div>
+
+    <div
+      class="screenshare-wrapper"
+      style="position: absolute; top: 10px; left: 50px; width: 88%; height: 80%"
+    >
+      <video id="screenShare"></video>
+    </div>
+    <div>
+      <video id="videoPlayback"></video>
+    </div>
+    <div
+      class="chat-wrapper"
+      style="
+        display: absolute;
+        /* background-color: red; */
+        height: 50%;
+        top: 50%;
+        width: 300px;
+        padding: 10px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        background-color: whitesmoke;
+      "
+    >
+      <div id="chats" style="height: 82%; overflow-y: scroll"></div>
+       chat message 
+      <div style="display: flex">
+        <input
+          type="text"
+          required
+          id="inputMessage"
+          style="display: block; width: 90%"
+        />
+        <button id="sendMessage-btn">Send Message</button>
+      </div>
+    </div>
+
+    <div
+      class="meetingId-wrapper"
+      style="position: absolute; z-index: 0; top: 0px; right: 100px"
+    >
+      <div
+        class="meetingId-container"
+        style="background-color: crimson; color: white; padding: 5px"
+      >
+        meetingId:
+
+         MEETING-ID=> 
+        <div style="display: inline; color: black" id="meetingid"></div>
+      </div>
+    </div>
+
+    <div
+      class="participants-wrapper"
+      style="
+        position: absolute;
+        top: 10px;
+        right: 0px;
+        height: 50%;
+        overflow-y: scroll;
+      "
+    >
+      <h3>Participants List</h3>
+      <div id="participants"></div>
+    </div>-->
+    <!-- You can also require other files to run in this process -->
+    <!-- <script src="./renderer.js"></script> -->
+    <!-- <script src="./zujo-sdk-2.0.0.min.js"></script> -->
 
     <div
       class="grid-page flex-container"
