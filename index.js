@@ -57,9 +57,9 @@ let deviceChangeEventListener;
 window.addEventListener("load", async function () {
   /*
 
-  const audioPermission = await window.VideoSDK.requestPermission([
+  const audioPermission = await window.VideoSDK.requestPermission(
     window.VideoSDK.Constants.permission.AUDIO,
-  ]);
+  );
 
   console.log(
     "request Audio Permissions",
@@ -67,18 +67,18 @@ window.addEventListener("load", async function () {
   );
 
 
-  const videoPermission = await window.VideoSDK.requestPermission([
+  const videoPermission = await window.VideoSDK.requestPermission(
     window.VideoSDK.Constants.permission.VIDEO,
-  ]);
+  );
 
   console.log(
     "request Video Permissions",
     videoPermission.get(window.VideoSDK.Constants.permission.VIDEO)
   );
 
-  const audiovideoPermission = await window.VideoSDK.requestPermission([
+  const audiovideoPermission = await window.VideoSDK.requestPermission(
     window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
-  ]);
+  );
 
   console.log(
     "request Audio and Video Permissions",
@@ -129,9 +129,9 @@ window.addEventListener("load", async function () {
 
   */
 
-  const requestPermission = await window.VideoSDK.requestPermission([
+  const requestPermission = await window.VideoSDK.requestPermission(
     window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
-  ]);
+  );
 
   console.log(
     "request Audio and Video Permissions",
