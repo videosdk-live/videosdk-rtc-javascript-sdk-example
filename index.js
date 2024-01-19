@@ -143,6 +143,14 @@ window.addEventListener("load", async function () {
   await enableCam();
   await enableMic();
 
+  await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 })
+    .then((result) => {
+      console.log("Network Stats : ", result);
+    })
+    .catch((error) => {
+      console.log("Error in Network Stats : ", error);
+    });
+
   deviceChangeEventListener = async (devices) => { // 
     await updateDevices();
     await enableCam();
@@ -151,68 +159,70 @@ window.addEventListener("load", async function () {
 });
 
 async function updateDevices() {
-  const checkAudioVideoPermission = await window.VideoSDK.checkPermissions(
-    window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
-  );
+  try {
+    const checkAudioVideoPermission = await window.VideoSDK.checkPermissions();
 
-  cameraPermissionAllowed = checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.VIDEO);
-  microphonePermissionAllowed = checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.AUDIO);
+    cameraPermissionAllowed = checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.VIDEO);
+    microphonePermissionAllowed = checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.AUDIO);
 
-  if (cameraPermissionAllowed) {
-    const cameras = await window.VideoSDK.getCameras();
-    cameraDeviceDropDown.innerHTML = "";
-    cameras.forEach(item => {
+    if (cameraPermissionAllowed) {
+      const cameras = await window.VideoSDK.getCameras();
+      cameraDeviceDropDown.innerHTML = "";
+      cameras.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.deviceId;
+        option.text = item.label;
+        cameraDeviceDropDown.appendChild(option);
+      });
+
+    } else {
       const option = document.createElement('option');
-      option.value = item.deviceId;
-      option.text = item.label;
+      option.value = "Permission needed";
+      option.text = "Permission needed";
       cameraDeviceDropDown.appendChild(option);
-    });
 
-  } else {
-    const option = document.createElement('option');
-    option.value = "Permission needed";
-    option.text = "Permission needed";
-    cameraDeviceDropDown.appendChild(option);
+      cameraDeviceDropDown.disabled = true;
+      cameraDeviceDropDown.setAttribute("style", "cursor:not-allowed")
+    }
 
-    cameraDeviceDropDown.disabled = true;
-    cameraDeviceDropDown.setAttribute("style", "cursor:not-allowed")
-  }
+    if (microphonePermissionAllowed) {
+      const microphones = await window.VideoSDK.getMicrophones();
+      const playBackDevices = await window.VideoSDK.getPlaybackDevices();
+      microphoneDeviceDropDown.innerHTML = "";
+      playBackDeviceDropDown.innerHTML = "";
 
-  if (microphonePermissionAllowed) {
-    const microphones = await window.VideoSDK.getMicrophones();
-    const playBackDevices = await window.VideoSDK.getPlaybackDevices();
-    microphoneDeviceDropDown.innerHTML = "";
-    playBackDeviceDropDown.innerHTML = "";
+      microphones.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.deviceId;
+        option.text = item.label;
+        microphoneDeviceDropDown.appendChild(option);
+      });
 
-    microphones.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.deviceId;
-      option.text = item.label;
-      microphoneDeviceDropDown.appendChild(option);
-    });
+      playBackDevices.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.deviceId;
+        option.text = item.label;
+        playBackDeviceDropDown.appendChild(option);
+      });
 
-    playBackDevices.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.deviceId;
-      option.text = item.label;
-      playBackDeviceDropDown.appendChild(option);
-    });
+    } else {
+      const microphoneDeviceOption = document.createElement('option');
+      microphoneDeviceOption.value = "Permission needed";
+      microphoneDeviceOption.text = "Permission needed";
+      microphoneDeviceDropDown.appendChild(microphoneDeviceOption);
 
-  } else {
-    const microphoneDeviceOption = document.createElement('option');
-    microphoneDeviceOption.value = "Permission needed";
-    microphoneDeviceOption.text = "Permission needed";
-    microphoneDeviceDropDown.appendChild(microphoneDeviceOption);
+      const playBackDeviceOption = document.createElement('option');
+      playBackDeviceOption.value = "Permission needed";
+      playBackDeviceOption.text = "Permission needed";
+      playBackDeviceDropDown.appendChild(playBackDeviceOption);
 
-    const playBackDeviceOption = document.createElement('option');
-    playBackDeviceOption.value = "Permission needed";
-    playBackDeviceOption.text = "Permission needed";
-    playBackDeviceDropDown.appendChild(playBackDeviceOption);
-
-    microphoneDeviceDropDown.disabled = true;
-    playBackDeviceDropDown.disabled = true;
-    microphoneDeviceDropDown.setAttribute("style", "cursor:not-allowed")
-    playBackDeviceDropDown.setAttribute("style", "cursor:not-allowed")
+      microphoneDeviceDropDown.disabled = true;
+      playBackDeviceDropDown.disabled = true;
+      microphoneDeviceDropDown.setAttribute("style", "cursor:not-allowed")
+      playBackDeviceDropDown.setAttribute("style", "cursor:not-allowed")
+    }
+  } catch (Ex) {
+    console.log("Error in check permission" + Ex);
   }
 }
 
