@@ -18,6 +18,10 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
     crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+  <title>Bootstrap Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link href="index.css" rel="stylesheet" />
@@ -36,14 +40,59 @@
 
 <body>
   <!--join page container start-->
-  <div id="joinPage" class="main-bg" style="display: flex; margin-left: -15px">
+  <div id="joinPage" class="main-bg" style="display: flex; margin-left: 15px">
     <div style="margin: auto; display: flex; width: 80%;">
       <!--join screen left grid start-->
       <div class="join-left" style="
             margin-right: 30px;
+            margin-left: 42px;
             align-items: center; justify-content: center;
           ">
         <div class="video-view">
+
+          <div id="network-stats" style="display: flex;">
+            <div id="download-speed-div" style="display: none;">
+              <i class="bi bi-arrow-down-short"></i>
+              <div id="download-speed">Download</div>
+            </div>
+            <div id="upload-speed-div" style="display: none;">
+              <i class="bi bi-arrow-up-short"></i>
+              <div id="upload-speed">Upload</div>
+            </div>
+            <div id="check-speed-div" style="margin-bottom: 3px; align-self: center; padding: 0 7px;">
+              Checking network speed..
+            </div>
+            <div id="refresh" class="spin">
+              <i class="bi bi-arrow-repeat" style="color: white; font-size: 16px;" id="refersh-network"></i>
+            </div>
+          </div>
+
+          <div id="network-error-offline">
+            <div id="network-error-div" style="display: flex; color: red; text-align: center;">
+              <i class="bi bi-wifi-off"
+                style="margin-right: 6px; font-size: 14px; margin-left: 3px; padding-top: 1px;"></i>
+              <div style="font-size: 13px; margin-right: 5px;">Yor're offline! Can't connect to servers</div>
+            </div>
+            <div class="network-error-refresh">
+              <i class="bi bi-arrow-repeat" style="color: white; font-size: 16px;" id="refersh-network"></i>
+            </div>
+          </div>
+
+          <div id="network-error-online">
+            <div id="network-error-div" style="display: flex; color: red; text-align: center;">
+              <i class="bi bi-wifi-off"
+                style="margin-right: 6px; font-size: 14px; margin-left: 3px; padding-top: 1px;"></i>
+              <div style="font-size: 13px; margin-right: 5px;">Something went wrong! Couldn't load data</div>
+            </div>
+            <div class="network-error-refresh">
+              <i class="bi bi-arrow-repeat" style="color: white; font-size: 16px;" id="refersh-network"></i>
+            </div>
+          </div>
+
+
+          <p id="camera-status"
+            style="color: white; z-index: 1; position:absolute; margin-top: 25%; margin-left: 40%; font-size: 18px;">
+            Your Camera is off</p>
           <video class="video" id="joinCam" style="
                 position: absolute;
                 width: 100%;
@@ -55,60 +104,204 @@
                   0 6px 6px rgba(0, 0, 0, 0.23);
               "></video>
           <div class="input-group mb-3 video-content">
-            <button style="border-radius: 20px; height: 50px; width: 50px; background-color: red;" id="camButton"
-              onclick="toggleWebCam()">
-              <i class="bi bi-camera-video-fill" style="color: black; font-size: 21px; display: none" id="onCamera"></i>
-              <i class="bi bi-camera-video-off-fill" style="color: black; font-size: 21px; " id="offCamera"></i>
-            </button>
+            <div id="no-microphone-permission" style="display: none;">
+
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_d_20_1262)">
+                  <rect x="4" y="4" width="48" height="48" rx="24" fill="#FF5D5D" />
+                </g>
+                <g filter="url(#filter1_d_20_1262)">
+                  <circle cx="44" cy="12" r="8" fill="#FF8A00" />
+                </g>
+                <path
+                  d="M44.876 8.258V11.69C44.876 12.058 44.854 12.424 44.81 12.788C44.766 13.148 44.708 13.516 44.636 13.892H43.376C43.304 13.516 43.246 13.148 43.202 12.788C43.158 12.424 43.136 12.058 43.136 11.69V8.258H44.876ZM42.932 16.058C42.932 15.914 42.958 15.78 43.01 15.656C43.066 15.532 43.14 15.424 43.232 15.332C43.328 15.24 43.44 15.168 43.568 15.116C43.696 15.06 43.836 15.032 43.988 15.032C44.136 15.032 44.274 15.06 44.402 15.116C44.53 15.168 44.642 15.24 44.738 15.332C44.834 15.424 44.908 15.532 44.96 15.656C45.016 15.78 45.044 15.914 45.044 16.058C45.044 16.202 45.016 16.338 44.96 16.466C44.908 16.59 44.834 16.698 44.738 16.79C44.642 16.882 44.53 16.954 44.402 17.006C44.274 17.058 44.136 17.084 43.988 17.084C43.836 17.084 43.696 17.058 43.568 17.006C43.44 16.954 43.328 16.882 43.232 16.79C43.14 16.698 43.066 16.59 43.01 16.466C42.958 16.338 42.932 16.202 42.932 16.058Z"
+                  fill="white" />
+                <path
+                  d="M35.6414 27.4364H33.8959C33.8999 28.1614 33.7475 28.8788 33.4491 29.5396L34.7141 30.8014C35.3179 29.7826 35.6381 28.6207 35.6414 27.4364ZM31.5191 27.6055C31.5191 27.5491 31.5346 27.4928 31.5346 27.4364V21.2814C31.5346 20.4645 31.2101 19.6811 30.6325 19.1035C30.0548 18.5259 29.2714 18.2014 28.4546 18.2014C27.6377 18.2014 26.8543 18.5259 26.2767 19.1035C25.6991 19.6811 25.3746 20.4645 25.3746 21.2814V21.4714L31.5191 27.6055ZM20.5232 19.2296L19.2141 20.5373L25.3846 26.7037V27.4423C25.3839 27.846 25.4628 28.2459 25.6168 28.6191C25.7707 28.9923 25.9967 29.3315 26.2818 29.6173C26.5669 29.9032 26.9056 30.13 27.2784 30.2849C27.6512 30.4398 28.0509 30.5197 28.4546 30.5201C28.6791 30.5182 28.9028 30.4924 29.1218 30.4432L30.8264 32.146C30.0833 32.4916 29.2741 32.6718 28.4546 32.6741C25.6209 32.6741 23.0132 30.5201 23.0132 27.4423H21.2677C21.2677 30.9455 24.0605 33.8387 27.4277 34.336V37.6955H29.4809V34.3319C30.4015 34.1921 31.2868 33.877 32.0887 33.4037L36.3855 37.6969L37.6946 36.3941L20.5232 19.2296Z"
+                  fill="white" />
+                <defs>
+                  <filter id="filter0_d_20_1262" x="0" y="0" width="56" height="56" filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha" />
+                    <feOffset />
+                    <feGaussianBlur stdDeviation="2" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_20_1262" />
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_20_1262" result="shape" />
+                  </filter>
+                  <filter id="filter1_d_20_1262" x="34" y="4" width="20" height="20" filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha" />
+                    <feOffset dy="2" />
+                    <feGaussianBlur stdDeviation="1" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0" />
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_20_1262" />
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_20_1262" result="shape" />
+                  </filter>
+                </defs>
+              </svg>
+            </div>
+
             <button style="
-                  border-radius: 20px;
-                  height: 50px;
-                  width: 50px;
-                  margin-left: 5px;
-                  background-color: red;
+                  border-radius: 50%;
+                  height: 49px;
+                  width: 49px;
+                  background-color: #FF5D5D;
+                  border: 0;
+                  margin-top: 5px;
+                  outline: none;
                 " id="micButton" onclick="toggleMic()">
-              <i class="bi bi-mic-mute-fill" style="color: black; font-size: 21px;" id="muteMic"></i>
-              <i class="bi bi-mic-fill" style="color: black; font-size: 21px; display: none" id="unmuteMic"></i>
+              <i class="bi bi-mic-mute-fill" style="color: white; " id="muteMic"></i>
+              <i class="bi bi-mic-fill" style="color: black; display: none" id="unmuteMic"></i>
             </button>
+            <button
+              style="border-radius: 50%; height: 49px; width: 49px; background-color: #FF5D5D; border: 0; margin-left: 20px; outline: none; margin-top: 5px;"
+              id="camButton" onclick="toggleWebCam()">
+              <i class="bi bi-camera-video-fill" style="color: black; ;display: none" id="onCamera"></i>
+              <i class="bi bi-camera-video-off-fill" style="color: white;" id="offCamera"></i>
+            </button>
+
+            <div id="no-camera-permission" style="display: none; margin-top: 2px; margin-left: 14px;">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter0_d_20_1271)">
+                <rect x="4" y="4" width="48" height="48" rx="24" fill="#FF5D5D"/>
+                </g>
+                <g filter="url(#filter1_d_20_1271)">
+                <circle cx="44" cy="12" r="8" fill="#FF8A00"/>
+                </g>
+                <path d="M44.876 8.258V11.69C44.876 12.058 44.854 12.424 44.81 12.788C44.766 13.148 44.708 13.516 44.636 13.892H43.376C43.304 13.516 43.246 13.148 43.202 12.788C43.158 12.424 43.136 12.058 43.136 11.69V8.258H44.876ZM42.932 16.058C42.932 15.914 42.958 15.78 43.01 15.656C43.066 15.532 43.14 15.424 43.232 15.332C43.328 15.24 43.44 15.168 43.568 15.116C43.696 15.06 43.836 15.032 43.988 15.032C44.136 15.032 44.274 15.06 44.402 15.116C44.53 15.168 44.642 15.24 44.738 15.332C44.834 15.424 44.908 15.532 44.96 15.656C45.016 15.78 45.044 15.914 45.044 16.058C45.044 16.202 45.016 16.338 44.96 16.466C44.908 16.59 44.834 16.698 44.738 16.79C44.642 16.882 44.53 16.954 44.402 17.006C44.274 17.058 44.136 17.084 43.988 17.084C43.836 17.084 43.696 17.058 43.568 17.006C43.44 16.954 43.328 16.882 43.232 16.79C43.14 16.698 43.066 16.59 43.01 16.466C42.958 16.338 42.932 16.202 42.932 16.058Z" fill="white"/>
+                <g clip-path="url(#clip0_20_1271)">
+                <path d="M37.5011 32.9089C37.6562 32.812 37.7833 32.6786 37.8708 32.5211C37.9582 32.3636 38.0031 32.1872 38.0011 32.0083V24.0083C37.9911 23.8318 37.9411 23.6596 37.8547 23.5039C37.7683 23.3483 37.6475 23.213 37.5011 23.1077C37.3539 23.0099 37.1796 22.9576 37.0011 22.9576C36.8227 22.9576 36.6484 23.0099 36.5011 23.1077L33.0011 24.9089C32.9752 24.1453 32.6508 23.4199 32.0937 22.8797C31.5366 22.3395 30.7885 22.0249 30.0011 21.9998H26.3011L37.3011 33.0059C37.2999 32.9089 37.3999 32.9089 37.5011 32.9089ZM37.7011 36.3101L32.9011 31.5077L23.4011 21.9998L19.7011 18.3004C19.6124 18.2059 19.5044 18.1303 19.3838 18.0786C19.2633 18.0269 19.1329 18.0002 19.0011 18.0002C18.8693 18.0002 18.739 18.0269 18.6184 18.0786C18.4979 18.1303 18.3898 18.2059 18.3011 18.3004C18.206 18.3923 18.1306 18.5015 18.0791 18.6217C18.0276 18.7419 18.0011 18.8708 18.0011 19.001C18.0011 19.1312 18.0276 19.2601 18.0791 19.3803C18.1306 19.5005 18.206 19.6097 18.3011 19.7016L20.6011 21.9998C19.8674 22.113 19.2004 22.4791 18.7228 23.0309C18.2451 23.5827 17.9889 24.2831 18.0011 25.0034V31.0059C17.9929 31.3997 18.0649 31.7913 18.2129 32.1582C18.3609 32.5251 18.582 32.8601 18.8636 33.144C19.1396 33.4226 19.4719 33.643 19.8396 33.7915C20.2074 33.94 20.6028 34.0134 21.0011 34.0071H30.0011C30.3502 34.0204 30.6984 33.9653 31.0249 33.8449C31.3514 33.7245 31.6494 33.5414 31.9011 33.3065L36.3011 37.7089C36.3916 37.8006 36.5002 37.8735 36.6205 37.9234C36.7408 37.9732 36.8703 37.9989 37.0011 37.9989C37.1319 37.9989 37.2614 37.9732 37.3817 37.9234C37.502 37.8735 37.6107 37.8006 37.7011 37.7089C37.8872 37.5203 37.9911 37.2693 37.9911 37.0083C37.9911 36.7473 37.8872 36.4963 37.7011 36.3077V36.3101Z" fill="white"/>
+                </g>
+                <defs>
+                <filter id="filter0_d_20_1271" x="0" y="0" width="56" height="56" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset/>
+                <feGaussianBlur stdDeviation="2"/>
+                <feComposite in2="hardAlpha" operator="out"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_20_1271"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_20_1271" result="shape"/>
+                </filter>
+                <filter id="filter1_d_20_1271" x="34" y="4" width="20" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="2"/>
+                <feGaussianBlur stdDeviation="1"/>
+                <feComposite in2="hardAlpha" operator="out"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_20_1271"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_20_1271" result="shape"/>
+                </filter>
+                <clipPath id="clip0_20_1271">
+                <rect width="20" height="20" fill="white" transform="translate(18 18)"/>
+                </clipPath>
+                </defs>
+                </svg>
+                
+            </div>
           </div>
         </div>
-        <div style="margin-top: 12px;display: grid; gap: 6px; grid-template-columns: auto auto auto; ">
+        <div style="margin-top: 12px;display: flex; gap: 10px; ">
+          <div class="btn-group dropup">
+            <button id="select-microphone" class="btn btn-secondary dropdown-toggle media-permission"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-mic" style="font-size: 14px;"></i>
+              MicroPhone
+            </button>
+            <ul class="dropdown-menu" id="microphoneDeviceDropDown">
+              <!-- Dropdown menu links -->
+            </ul>
+          </div>
+          <div class="btn-group dropup">
+            <button id="select-speaker" type="button" class="btn btn-secondary dropdown-toggle media-permission"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-volume-up" style="font-size: 17px;"></i>
+              Speaker
+            </button>
+            <ul class="dropdown-menu" id="playBackDeviceDropDown">
+              <!-- Dropdown menu links -->
+            </ul>
+          </div>
+          <div class="btn-group dropup">
+            <button id="select-camera" class="btn btn-secondary dropdown-toggle media-permission"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-camera-video" style="font-size: 16px;"></i>
+              Camera
+            </button>
+            <ul class="dropdown-menu" id="cameraDeviceDropDown">
+              <!-- Dropdown menu links -->
+            </ul>
+          </div>
+
+          <!-- <div>
+            <label style="color: white;">Speakers</label> 
+            <select style="column-span: 3;" class="select-class" id="playBackDeviceDropDown"></select>
+          </div>
           <div>
             <label style="color: white;">Camera</label>
             <select style="column-span: 3;" class="select-class" id="cameraDeviceDropDown"
               onchange="enableCam()"></select>
-          </div>
-          <div>
-            <label style="color: white;">Microphone</label>
-            <select style="column-span: 3;" class="select-class" id="microphoneDeviceDropDown"></select>
-          </div>
-          <div>
-            <label style="color: white;">Speakers</label>
-            <select style="column-span: 3;" class="select-class" id="playBackDeviceDropDown"></select>
-          </div>
+          </div> -->
         </div>
       </div>
       <!--join screen right grid start-->
       <div class="join-right"
-        style="margin-left:48px; width: 400px;  display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        style="margin-left:48px; margin-bottom: 55px; width: 600px;  display: flex; align-items: center; justify-content: center; flex-direction: column;">
 
 
         <!-- <div class="flex"> -->
-          <div class="flex-container col-auto">
-            <center>
-              <button class="btn btn-primary" style="border-radius: 5px" id="meetingJoinButton"
-                onclick="joinMeeting(true)">
-                Create Meeting
-              </button>
-            </center>
-          </div>
-          <div class="flex-container">
+        <div class="flex-container col-auto">
+          <center>
+            <button class="btn btn-primary join-btn"
+              style="border-radius: 10px; padding: 10px 120px; background-color: #5A6BFF; border: none; outline: none;"
+              id="meetingJoinButton" onclick="joinMeeting(true)">
+              Create a Meeting
+            </button>
+          </center>
+        </div>
+        <!-- <div class="flex-container">
             <center>
               <br />
               <center style="color: grey">OR</center>
             </center>
-          </div>
-          <div class="flex-container" style="margin-top: 25px">
+          </div> -->
+        <div class="flex-container col-auto join-meeting-input">
+          <center>
+            <input type="text" class="form-control" id="joinMeetingId" placeholder="Enter Meeting Code" />
+          </center>
+        </div>
+        <div class="flex-container col-auto join-meeting-input">
+          <center>
+            <input type="text" class="form-control" id="name" placeholder="Enter Your Name" />
+          </center>
+        </div>
+        <div class="flex-container col-auto join-meeting-input">
+          <center>
+            <button class="btn btn-primary inner-join-button"
+              style="border-radius: 10px; padding: 10px 130px; background-color: rgb(28, 28, 28); border: 0.1px solid rgb(122, 122, 122) ; outline: none; margin-top: 15px;"
+              id="meetingJoinButton" onclick="joinMeeting(false)">
+              Join a Meeting
+            </button>
+          </center>
+        </div>
+        <div class="flex-container col-auto join-btn">
+          <center>
+            <button class="btn btn-primary"
+              style="border-radius: 10px; padding: 10px 130px; background-color: rgb(28, 28, 28); border: 0.1px solid rgb(122, 122, 122); outline: none; margin-top: 15px;"
+              id="meetingJoinButton" onclick="showInputFields()">
+              Join a Meeting
+            </button>
+          </center>
+        </div>
+        <!-- <div class="flex-container" style="margin-top: 25px;">
             <center>
               <div class="col-auto" style="width: 500px; margin-left: 70px">
                 <div class="input-group mb-3">
@@ -136,7 +329,7 @@
                 </div>
               </div>
             </center>
-          </div>
+          </div> -->
         <!-- </div> -->
       </div>
       <!--join screen right grid end-->
@@ -180,7 +373,7 @@
             <button type="button" class="btn btn-outline-light ms-1" aria-haspopup="true" aria-expanded="false">
               <span class="material-icons"> mic </span>
             </button>
-            
+
           </div>
           <!--main page toggle web-cam-->
           <div class="btn-group" id="main-pg-cam-off" style="display: inline-block">
@@ -267,9 +460,9 @@
     </div>
   </div>
 
-  <script src="index.js"></script>
+  <script src="index.js" defer></script>
   <script src="https://sdk.videosdk.live/js-sdk/0.0.82/videosdk.js"></script>
-  <script src="config.js"></script>
+  <script src="config.js" defer></script>
 </body>
 <div id="viewer"></div>
 
