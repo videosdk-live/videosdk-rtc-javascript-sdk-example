@@ -88,6 +88,14 @@ body {
   position: relative;
 }
 
+#name {
+  margin-top: 15px;
+}
+
+#meetingid{
+  margin-right: 5px;
+}
+
 input[type="text"] {
   background-color: #212032;
   color: aliceblue;
@@ -96,8 +104,8 @@ input[type="text"] {
   border: 1px solid gray;
   text-align: center;
   border-radius: 8px;
-  margin-top: 15px;
 }
+
 
 input[type="text"]:hover {
   background-color: #212032;
