@@ -1,6 +1,7 @@
 // Constants
 const API_BASE_URL = "https://api.videosdk.live";
 
+
 // Declaring variables
 let videoContainer = document.getElementById("videoContainer");
 let micButton = document.getElementById("micButton");
@@ -31,6 +32,23 @@ let videoPlayback = document.getElementById("videoPlayback");
 const cameraDeviceDropDown = document.getElementById('cameraDeviceDropDown');
 const microphoneDeviceDropDown = document.getElementById('microphoneDeviceDropDown');
 const playBackDeviceDropDown = document.getElementById('playBackDeviceDropDown');
+const joinMeetingCode = document.getElementById("joinMeetingId");
+const joiningName = document.getElementById("name");
+const refreshButton = document.getElementById("refresh");
+const networkErrorRefreshButton = document.querySelectorAll(".network-error-refresh");
+const microphonePermission = document.getElementById("no-microphone-permission");
+const cameraPermission = document.getElementById("no-camera-permission");
+
+joinMeetingCode.addEventListener("input", handleInputChange);
+joiningName.addEventListener("input", handleInputChange);
+
+
+let joinMeetingCodeValue = "";
+let joinNameValue = "";
+
+let currentMic = null;
+let currentCamera = null;
+let currentPlayback = null;
 
 
 let meeting = "";
@@ -129,26 +147,211 @@ window.addEventListener("load", async function () {
 
   */
 
-  const requestPermission = await window.VideoSDK.requestPermission(
-    window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
-  );
+  let checkAudioVideoPermission;
+
+  try {
+    checkAudioVideoPermission = await VideoSDK.checkPermissions(
+      VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
+    );
+    console.log(
+      "check Audio and Video Permissions",
+      checkAudioVideoPermission.get(VideoSDK.Constants.permission.AUDIO),
+      checkAudioVideoPermission.get(VideoSDK.Constants.permission.VIDEO)
+    );
+  } catch (ex) {
+    console.log("Error in checkPermissions ", ex);
+  }
+
+
+  if (checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.VIDEO) === false || checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.AUDIO) === false) {
+    checkAudioVideoPermission = await window.VideoSDK.requestPermission(
+      window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
+    );
+  }
+
+
+
+
+
+
+  // if(requestPermission.get(window.VideoSDK.Constants.permission.AUDIO)){
+  //   console.log("permission check called");
+
+  //   var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  //   svg.setAttribute("width", "20");
+  //   svg.setAttribute("height", "20");
+  //   svg.setAttribute("viewBox", "0 0 20 20");
+  //   svg.setAttribute("fill", "none");
+
+  //   svg.innerHTML = `
+  //   <g filter="url(#filter0_d_20_967)">
+  //   <circle cx="10" cy="8" r="8" fill="#FF8A00"/>
+  //   </g>
+  //   <path d="M10.876 4.258V7.69C10.876 8.058 10.854 8.424 10.81 8.788C10.766 9.148 10.708 9.516 10.636 9.892H9.37605C9.30405 9.516 9.24605 9.148 9.20205 8.788C9.15805 8.424 9.13605 8.058 9.13605 7.69V4.258H10.876ZM8.93205 12.058C8.93205 11.914 8.95805 11.78 9.01005 11.656C9.06605 11.532 9.14005 11.424 9.23205 11.332C9.32805 11.24 9.44005 11.168 9.56805 11.116C9.69605 11.06 9.83605 11.032 9.98805 11.032C10.136 11.032 10.274 11.06 10.402 11.116C10.53 11.168 10.642 11.24 10.738 11.332C10.834 11.424 10.908 11.532 10.96 11.656C11.016 11.78 11.044 11.914 11.044 12.058C11.044 12.202 11.016 12.338 10.96 12.466C10.908 12.59 10.834 12.698 10.738 12.79C10.642 12.882 10.53 12.954 10.402 13.006C10.274 13.058 10.136 13.084 9.98805 13.084C9.83605 13.084 9.69605 13.058 9.56805 13.006C9.44005 12.954 9.32805 12.882 9.23205 12.79C9.14005 12.698 9.06605 12.59 9.01005 12.466C8.95805 12.338 8.93205 12.202 8.93205 12.058Z" fill="white"/>
+  //   <defs>
+  //   <filter id="filter0_d_20_967" x="0" y="0" width="20" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  //   <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+  //   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+  //   <feOffset dy="2"/>
+  //   <feGaussianBlur stdDeviation="1"/>
+  //   <feComposite in2="hardAlpha" operator="out"/>
+  //   <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+  //   <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_20_967"/>
+  //   <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_20_967" result="shape"/>
+  //   </filter>
+  //   </defs>
+  //   `
+  //   document.querySelector(".video-content").appendChild(svg);
+  // }
 
   console.log(
     "request Audio and Video Permissions",
-    requestPermission.get(window.VideoSDK.Constants.permission.AUDIO),
-    requestPermission.get(window.VideoSDK.Constants.permission.VIDEO)
+    checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.AUDIO),
+    checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.VIDEO)
   );
+
+  if (checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.AUDIO) === false) {
+    this.document.getElementById("micButton").style.display = "none";
+    this.document.getElementById("no-microphone-permission").style.display = "block";
+  }
+
+  if (checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.VIDEO) === false) {
+    this.document.getElementById("camButton").style.display = "none";
+    this.document.getElementById("no-camera-permission").style.display = "block";
+  }
 
   await updateDevices();
   await enableCam();
   await enableMic();
 
+  // microphonePermission.addEventListener('click', async () => {
+  //   console.log("microphone permission request called");
+  //   try{
+  //     requestPermission = await window.VideoSDK.requestPermission(
+  //       window.VideoSDK.Constants.permission.AUDIO,
+  //     );
+  //     console.log("permission taken")
+  //   }catch(e){
+  //     console.log("Error while requesting microphone permission", e);
+  //   }
+  // })
+
+  // cameraPermission.addEventListener('click', async () => {
+  //   try{
+  //     requestPermission = await window.VideoSDK.requestPermission(
+  //       window.VideoSDK.Constants.permission.VIDEO,
+  //     );
+  //   }catch(e){
+  //     console.log("Error while requesting camera permission", e);
+  //   }
+  // })
+
+  refreshButton.addEventListener('click', async () => {
+    try {
+      const refreshElement = document.getElementById("refresh");
+      console.log(refreshElement);
+      this.document.getElementById("download-speed-div").style.display = "none";
+      this.document.getElementById("upload-speed-div").style.display = "none";
+      this.document.getElementById("check-speed-div").style.display = "unset";
+      this.document.getElementById("network-stats").style.marginLeft = "445px";
+      refreshElement.firstElementChild.classList.remove("bi-arrow-cloclwise");
+      refreshElement.firstElementChild.classList.add("bi-arrow-repeat");
+      refreshElement.classList.add("spin")
+      const result = await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 });
+      this.document.getElementById("download-speed-div").style.display = "flex";
+      this.document.getElementById("upload-speed-div").style.display = "flex";
+      this.document.getElementById("check-speed-div").style.display = "none";
+      this.document.getElementById("network-stats").style.marginLeft = "375px";
+      refreshElement.firstElementChild.classList.add("bi-arrow-cloclwise");
+      refreshElement.firstElementChild.classList.remove("bi-arrow-repeat");
+      refreshElement.classList.remove("spin");
+      document.getElementById("network-error-offline").style.display = "none";
+      document.getElementById("network-error-online").style.display = "none";
+      console.log("Network Stats : ", result);
+      document.getElementById("download-speed").innerHTML = result["downloadSpeed"] + " MBPS";
+      document.getElementById("upload-speed").innerHTML = result["uploadSpeed"] + " MBPS";
+      document.getElementById("network-stats").style.display = "flex";
+    } catch (error) {
+      this.document.getElementById("network-stats").style.display = "none";
+      console.log(error);
+      if (error == "Not able to get NetworkStats due to no Network") {
+        this.document.getElementById("network-error-offline").style.display = "flex"
+        console.log("Error in Network Stats : ", error);
+      } else if (error == "Not able to get NetworkStats due to timeout") {
+        this.document.getElementById("network-error-online").style.display = "flex"
+        console.log("Error in Network Stats : ", error);
+      }
+    }
+  });
+
+  networkErrorRefreshButton.forEach((refersh) => {
+    refersh.addEventListener("click", async () => {
+      try {
+        const refreshElement = document.getElementById("refresh");
+        console.log(refreshElement);  
+        refreshElement.firstElementChild.classList.remove("bi-arrow-cloclwise");
+        refreshElement.firstElementChild.classList.add("bi-arrow-repeat");
+        refreshElement.classList.add("spin");
+        this.document.getElementById("download-speed-div").style.display = "none";
+        this.document.getElementById("upload-speed-div").style.display = "none";
+        this.document.getElementById("check-speed-div").style.display = "unset";
+        this.document.getElementById("network-stats").style.marginLeft = "445px";
+        const result = await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 });
+        // console.log("SUII");
+        this.document.getElementById("download-speed-div").style.display = "flex";
+        this.document.getElementById("upload-speed-div").style.display = "flex";
+        this.document.getElementById("check-speed-div").style.display = "none";
+        this.document.getElementById("network-stats").style.marginLeft = "375px";
+        refreshElement.firstElementChild.classList.remove("bi-arrow-repeat");
+        refreshElement.classList.remove("spin");
+        refreshElement.firstElementChild.classList.add("bi-arrow-cloclwise");
+        document.getElementById("network-error-offline").style.display = "none";
+        document.getElementById("network-error-online").style.display = "none";
+        console.log("Network Stats : ", result);
+        document.getElementById("download-speed").innerHTML = result["downloadSpeed"] + " MBPS";
+        document.getElementById("upload-speed").innerHTML = result["uploadSpeed"] + " MBPS";
+        document.getElementById("network-stats").style.display = "flex";
+      } catch (error) {
+        this.document.getElementById("network-stats").style.display = "none";
+        console.log(error);
+        if (error == "Not able to get NetworkStats due to no Network") {
+          this.document.getElementById("network-error-offline").style.display = "flex"
+          console.log("Error in Network Stats : ", error);
+        } else if (error == "Not able to get NetworkStats due to timeout") {
+          this.document.getElementById("network-error-online").style.display = "flex"
+          console.log("Error in Network Stats : ", error);
+        }
+      }
+    })
+  })
+
   await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 })
     .then((result) => {
+      const refreshElement = document.getElementById("refresh");
+      this.document.getElementById("download-speed-div").style.display = "flex";
+      this.document.getElementById("upload-speed-div").style.display = "flex";
+      this.document.getElementById("check-speed-div").style.display = "none";
+      this.document.getElementById("network-stats").style.marginLeft = "375px";
+      // console.log("repeat removed")
+      refreshElement.classList.remove("spin");
+      refreshElement.firstElementChild.classList.remove("bi-arrow-repeat");
+      refreshElement.firstElementChild.classList.add("bi-arrow-clockwise");
+      document.getElementById("network-error-offline").style.display = "none";
+      document.getElementById("network-error-online").style.display = "none";
       console.log("Network Stats : ", result);
+      document.getElementById("download-speed").innerHTML = result["downloadSpeed"] + " MBPS"
+      document.getElementById("upload-speed").innerHTML = result["uploadSpeed"] + " MBPS"
+      document.getElementById("network-stats").style.display = "flex";
     })
     .catch((error) => {
-      console.log("Error in Network Stats : ", error);
+      console.log(error);
+      if (error == "Not able to get NetworkStats due to no Network") {
+        this.document.getElementById("network-error-offline").style.display = "flex"
+        console.log("Error in Network Stats : ", error);
+      } else if (error == "Not able to get NetworkStats due to timeout") {
+        this.document.getElementById("network-error-online").style.display = "flex"
+        console.log("Error in Network Stats : ", error);
+      }
     });
 
   deviceChangeEventListener = async (devices) => { // 
@@ -167,13 +370,47 @@ async function updateDevices() {
 
     if (cameraPermissionAllowed) {
       const cameras = await window.VideoSDK.getCameras();
+      // console.log(cameraDeviceDropDown);
       cameraDeviceDropDown.innerHTML = "";
       cameras.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.deviceId;
-        option.text = item.label;
-        cameraDeviceDropDown.appendChild(option);
+        const li = document.createElement('li');
+        // console.log(item)
+        li.id = item.deviceId;
+        li.textContent = item.label;
+        // console.log(li);
+        li.addEventListener("click", function () {
+          document.getElementById(currentCamera.deviceId).innerHTML = `
+            ${currentCamera.label}
+          `
+          currentCamera = item;
+          console.log(currentCamera);
+          document.getElementById("select-camera").innerHTML = `
+          <i class="bi bi-camera-video" style="font-size: 16px;"></i>
+          ${currentCamera.label}
+          `
+
+          document.getElementById(currentCamera.deviceId).innerHTML = `
+        <i class="bi bi-check2"></i>
+        ${currentCamera.label}
+        `
+
+          toggleWebCam();
+          toggleWebCam();
+        })
+        // if(item.deviceId == "Default")
+        // console.log(item);
+        currentCamera = item;
+        document.getElementById("select-camera").innerHTML = `
+          <i class="bi bi-camera-video" style="font-size: 16px;"></i>
+          ${currentCamera.label}
+          `
+        cameraDeviceDropDown.appendChild(li);
       });
+
+      document.getElementById(currentCamera.deviceId).innerHTML = `
+        <i class="bi bi-check2"></i>
+        ${currentCamera.label}
+        `
 
     } else {
       const option = document.createElement('option');
@@ -187,23 +424,122 @@ async function updateDevices() {
 
     if (microphonePermissionAllowed) {
       const microphones = await window.VideoSDK.getMicrophones();
+      // console.log(microphones)
       const playBackDevices = await window.VideoSDK.getPlaybackDevices();
+      // console.log(playBackDevices)
       microphoneDeviceDropDown.innerHTML = "";
       playBackDeviceDropDown.innerHTML = "";
+      // console.log("Before For Each",microphones)
 
-      microphones.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.deviceId;
-        option.text = item.label;
-        microphoneDeviceDropDown.appendChild(option);
+      microphones.forEach((item) => {
+        // const option = document.createElement('option');
+        // option.value = item.deviceId;
+        // option.text = item.label;
+        // console.log(item);
+        const li = document.createElement('li');
+        // li.classList.add("microphone-type");
+        li.id = item.deviceId;
+        li.textContent = item.label;
+        li.addEventListener("click", (e) => {
+          if (currentMic.deviceId == "communications" || currentMic.deviceId == "default") {
+            document.querySelector(`#microphoneDeviceDropDown #${currentMic.deviceId}`).innerHTML = `
+            ${currentMic.label}
+            `
+          } else {
+            document.getElementById(currentMic.deviceId).innerHTML = `
+            ${currentMic.label}
+            `
+          }
+          currentMic = item;
+          console.log(currentMic);
+          document.getElementById("select-microphone").innerHTML = `
+          <i class="bi bi-mic" style="font-size: 14px;"></i>
+          ${currentMic.label}
+          `
+
+          if (currentMic.deviceId == "communications" || currentMic.deviceId == "default") {
+            document.querySelector(`#microphoneDeviceDropDown #${currentMic.deviceId}`).innerHTML = `
+            <i class="bi bi-check2"></i>
+            ${currentMic.label}
+            `
+          } else {
+            document.getElementById(currentMic.deviceId).innerHTML = `
+            <i class="bi bi-check2"></i>
+            ${currentMic.label}
+            `
+          }
+          enableMic();
+        })
+        if (item.deviceId == 'default') {
+          currentMic = item;
+          document.getElementById("select-microphone").innerHTML = `
+          <i class="bi bi-mic" style="font-size: 14px;"></i>
+          ${currentMic.label}
+          `
+
+        }
+
+        // console.log(li);
+        microphoneDeviceDropDown.appendChild(li);
       });
+
 
       playBackDevices.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.deviceId;
-        option.text = item.label;
-        playBackDeviceDropDown.appendChild(option);
+        const li = document.createElement('li');
+        li.classList.add("playback-type");
+        li.id = item.deviceId;
+        li.textContent = item.label;
+        li.addEventListener("click", () => {
+          if (currentPlayback.deviceId == "communications" || currentPlayback.deviceId == "default") {
+            document.querySelector(`#playBackDeviceDropDown #${currentPlayback.deviceId}`).innerHTML = `
+              ${currentPlayback.label}
+            `
+          } else {
+            document.getElementById(currentPlayback.deviceId).innerHTML = `
+            ${currentPlayback.label}
+            `
+          }
+          currentPlayback = item;
+          console.log(currentPlayback);
+          document.getElementById("select-speaker").innerHTML = `
+        <i class="bi bi-volume-up" style="font-size: 17px;"></i>
+        ${currentPlayback.label}
+        `;
+          // console.log("before tick ")
+          // console.log(document.getElementById(currentPlayback.deviceId))
+          setAudioOutputDevice(currentPlayback.deviceId);
+
+          if (currentPlayback.deviceId == "communications" || currentPlayback.deviceId == "default") {
+            document.querySelector(`#playBackDeviceDropDown #${currentPlayback.deviceId}`).innerHTML = `
+          <i class="bi bi-check2"></i>
+          ${currentPlayback.label}
+          `
+          } else {
+            document.getElementById(currentPlayback.deviceId).innerHTML = `
+          <i class="bi bi-check2"></i>
+            ${currentPlayback.label}
+            `
+          }
+        })
+        if (item.deviceId == 'default') {
+          currentPlayback = item;
+          document.getElementById("select-speaker").innerHTML = `
+          <i class="bi bi-volume-up" style="font-size: 17px;"></i>
+          ${currentPlayback.label}
+          `
+        }
+        playBackDeviceDropDown.appendChild(li);
       });
+
+      document.querySelector(`#microphoneDeviceDropDown #${currentMic.deviceId}`).innerHTML = `
+            <i class="bi bi-check2"></i>
+            ${currentMic.label}
+            `
+
+      document.querySelector(`#playBackDeviceDropDown #${currentPlayback.deviceId}`).innerHTML = `
+          <i class="bi bi-check2"></i>
+          ${currentPlayback.label}
+          `
 
     } else {
       const microphoneDeviceOption = document.createElement('option');
@@ -224,14 +560,56 @@ async function updateDevices() {
   } catch (Ex) {
     console.log("Error in check permission" + Ex);
   }
+
+
 }
 
+function handleInputChange(event) {
+  console.log("Event called")
+  var input = event.target;
+  var inputValue = input.value;
+
+  if (input.id === "joinMeetingId") {
+
+    joinMeetingCodeValue = inputValue;
+  } else if (input.id === "name") {
+    joinNameValue = inputValue;
+  }
+
+  if (joinMeetingCodeValue.length == 14 && joinNameValue.length >= 3) {
+    console.log("Changes are called")
+    console.log(document.querySelector(".inner-join-button"));
+    document.querySelector(".inner-join-button").style.backgroundColor = "#5A6BFF";
+    document.querySelector(".inner-join-button").style.border = "none";
+  } else {
+    document.querySelector(".inner-join-button").style.backgroundColor = "rgb(28, 28, 28)";
+    document.querySelector(".inner-join-button").style.border = "0.1px solid rgb(122, 122, 122)";
+  }
+
+
+}
+
+
 const setAudioOutputDevice = (deviceId) => {
+  // console.log(deviceId);
+  console.log(deviceId);
   const audioTags = document.getElementsByTagName("audio");
   for (let i = 0; i < audioTags.length; i++) {
+    console.log(audioTags[i])
     audioTags.item(i).setSinkId(deviceId);
   }
 };
+
+function showInputFields() {
+  const inputElement = document.querySelectorAll(".join-meeting-input");
+  inputElement.forEach((element) => {
+    element.style.display = "block"
+  })
+
+  document.querySelectorAll(".join-btn").forEach((btn => {
+    btn.style.display = 'none'
+  }))
+}
 
 
 async function tokenGeneration() {
@@ -373,16 +751,20 @@ async function startMeeting(token, meetingId, name) {
   let customVideoTrack, customAudioTrack;
 
   if (webCamEnable) {
+    // console.log(cameraDeviceDropDown.value);
     customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
-      cameraId: cameraDeviceDropDown.value ? cameraDeviceDropDown.value : undefined,
+      cameraId: currentCamera.deviceId ? currentCamera.deviceId : undefined,
       optimizationMode: "motion",
       multiStream: false,
     });
   }
 
   if (micEnable) {
+    console.log("Hello microphone called");
+    // console.log(microphoneDeviceDropDown.value);
+    console.log(currentMic.deviceId);
     customAudioTrack = await window.VideoSDK.createMicrophoneAudioTrack({
-      microphoneId: microphoneDeviceDropDown.value ? microphoneDeviceDropDown.value : undefined,
+      microphoneId: currentMic.deviceId ? currentMic.deviceId : undefined,
       encoderConfig: "high_quality",
       noiseConfig: {
         noiseSuppresion: true,
@@ -489,7 +871,7 @@ async function startMeeting(token, meetingId, name) {
     console.log("Video Element Appended");
     videoContainer.appendChild(audioElement);
     addParticipantToList(participant);
-    setAudioOutputDevice(playBackDeviceDropDown.value);
+    setAudioOutputDevice(currentPlayback.deviceId);
   });
 
   // participants left
@@ -542,15 +924,22 @@ async function joinMeeting(newMeeting) {
   // get Token
   tokenGeneration();
 
-  let joinMeetingName = "JSSDK";
+
+  let joinMeetingName = document.getElementById("name");
   let meetingId = document.getElementById("joinMeetingId").value || "";
-  if (!meetingId && !newMeeting) {
+  if (!newMeeting) {
+    if (validateMeeting(meetingId, joinNameValue)) {
+      console.log("meeting Validated");
+    }
+    else {
+      return alert("Please enter the Valid meetingId");
+    }
+
+  }
+  if (!joinMeetingCodeValue && !newMeeting) {
     return alert("Please Provide a meetingId");
   }
 
-  if (!newMeeting) {
-    validateMeeting(meetingId, joinMeetingName);
-  }
 
   //create New Meeting
   //get new meeting if new meeting requested;
@@ -570,7 +959,7 @@ async function joinMeeting(newMeeting) {
       document.getElementById("joinPage").style.display = "none";
       document.getElementById("gridPpage").style.display = "flex";
       toggleControls();
-      startMeeting(token, roomId, joinMeetingName);
+      startMeeting(token, roomId, 'Admin');
     }
   } else if (newMeeting && TOKEN == "") {
     const options = {
@@ -598,6 +987,12 @@ async function joinMeeting(newMeeting) {
       startMeeting(token, meetingId, joinMeetingName);
     }
   }
+}
+
+function validateMeetingId(meetingId) {
+  const regex = /^[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}$/;
+
+  return regex.test(meetingId);
 }
 
 // creating video element
@@ -764,8 +1159,8 @@ function addDomEvents() {
 async function toggleMic() {
   console.log("micEnable", micEnable);
   if (micEnable) {
-    document.getElementById("micButton").style.backgroundColor = "red";
-    document.getElementById("muteMic").style.display = "inline-block";
+    document.getElementById("micButton").style.backgroundColor = "#FF5D5D";
+    document.getElementById("muteMic").style.display = "unset";
     document.getElementById("unmuteMic").style.display = "none";
     micEnable = false;
   } else {
@@ -775,10 +1170,11 @@ async function toggleMic() {
 async function toggleWebCam() {
   console.log("joinPageVideoStream", joinPageVideoStream);
   if (joinPageVideoStream) {
-    joinPageWebcam.style.backgroundColor = "black";
+    document.getElementById("camera-status").style.display = "block";
+    joinPageWebcam.style.backgroundColor = "#1C1C1C";
     joinPageWebcam.srcObject = null;
-    document.getElementById("camButton").style.backgroundColor = "red";
-    document.getElementById("offCamera").style.display = "inline-block";
+    document.getElementById("camButton").style.backgroundColor = "#FF5D5D";
+    document.getElementById("offCamera").style.display = "unset";
     document.getElementById("onCamera").style.display = "none";
     webCamEnable = false;
     const tracks = joinPageVideoStream.getTracks();
@@ -803,9 +1199,10 @@ async function enableCam() {
 
   if (cameraPermissionAllowed) {
     let mediaStream;
+    console.log(currentCamera.deviceId);
     try {
       mediaStream = await window.VideoSDK.createCameraVideoTrack({
-        cameraId: cameraDeviceDropDown.value ? cameraDeviceDropDown.value : undefined,
+        cameraId: currentCamera.deviceId ? currentCamera.deviceId : undefined,
         optimizationMode: "motion",
         multiStream: false,
       });
@@ -814,14 +1211,16 @@ async function enableCam() {
     }
 
     if (mediaStream) {
+      document.getElementById("camera-status").style.display = "none";
       joinPageVideoStream = mediaStream;
       joinPageWebcam.srcObject = mediaStream;
       joinPageWebcam.play().catch((error) =>
         console.log("videoElem.current.play() failed", error)
       );
-      document.getElementById("camButton").style.backgroundColor = "#DCDCDC";
+      document.getElementById("camera-status").display = "none";
+      document.getElementById("camButton").style.backgroundColor = "white";
       document.getElementById("offCamera").style.display = "none";
-      document.getElementById("onCamera").style.display = "inline-block";
+      document.getElementById("onCamera").style.display = "unset";
       webCamEnable = true;
     }
 
@@ -830,10 +1229,13 @@ async function enableCam() {
 
 async function enableMic() {
   if (microphonePermissionAllowed) {
+    // console.log(currentMic);
     micEnable = true;
-    document.getElementById("micButton").style.backgroundColor = "#DCDCDC";
+
+    document.getElementById("micButton").style.backgroundColor = "white";
     document.getElementById("muteMic").style.display = "none";
-    document.getElementById("unmuteMic").style.display = "inline-block";
+    document.getElementById("unmuteMic").style.display = "unset";
+
   }
 }
 
