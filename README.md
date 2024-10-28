@@ -24,7 +24,7 @@ At Video SDK, we’re building tools to help companies create world-class collab
 ## ⚡ Quick Setup
 
 1. Sign up on [VideoSDK](https://app.videosdk.live/) to grab your API Key and Secret.
-2. Get familiarized with [Token](https://docs.videosdk.live/javascript/guide/video-and-audio-calling-api-sdk/authentication-and-token)
+2. Familiarize yourself with [Token](https://docs.videosdk.live/javascript/guide/video-and-audio-calling-api-sdk/authentication-and-token)
 
 ## 🛠 Prerequisites
 
@@ -100,11 +100,11 @@ Understand the core components of our SDK:
 
 - `Meeting` - A Meeting represents Real-time audio and video communication.
 
-  **` Note: Don't confuse with Room and Meeting keyword, both are same thing 😃`**
+  **` Note: Don't confuse the terms Room and Meeting; both mean the same thing 😃`**
 
 - `Sessions` - A particular duration you spend in a given meeting is referred as a session, you can have multiple sessions of a specific meetingId.
-- `Participant` - Participant represents someone who is attending the meeting's session, `local partcipant` represents self (You), for this self, other participants are `remote participants`.
-- `Stream` - Stream means video or audio media content that is either published by `local participant` or `remote participants`.
+- `Participant` - A participant refers to anyone attending the meeting session. The `local participant` represents yourself (You), while all other attendees are considered `remote participants`.
+- `Stream` - A stream refers to video or audio media content that is published by either the `local participant` or `remote participants`.
 
 
 ## 🔐 Token Generation
@@ -113,7 +113,7 @@ The token is used to create and validate a meeting using API and also initialize
 
 🛠️ `Development Environment`:
 
-- You may use a temporary token for development. To create a temporary token, go to VideoSDK [dashboard](https://app.videosdk.live/api-keys) .
+- You can use a temporary token for development. To create one, go to the VideoSDK's [dashboard](https://app.videosdk.live/api-keys) .
 
 🌐 `Production Environment`:
 
