@@ -245,7 +245,11 @@ window.addEventListener("load", async function () {
   //     console.log("Error while requesting camera permission", e);
   //   }
   // })
-
+  deviceChangeEventListener = async (devices) => { // 
+    await updateDevices();
+    await enableCam();
+  }
+  window.VideoSDK.on("device-changed", deviceChangeEventListener);
   refreshButton.addEventListener('click', async () => {
     try {
       const refreshElement = document.getElementById("refresh");
@@ -354,11 +358,7 @@ window.addEventListener("load", async function () {
       }
     });
 
-  deviceChangeEventListener = async (devices) => { // 
-    await updateDevices();
-    await enableCam();
-  }
-  window.VideoSDK.on("device-changed", deviceChangeEventListener);
+
 });
 
 async function updateDevices() {
