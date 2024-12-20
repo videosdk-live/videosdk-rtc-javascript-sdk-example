@@ -1,2 +1,0 @@
-AUTH_URL = "";
-TOKEN = "";
