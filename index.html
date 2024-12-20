@@ -93,11 +93,12 @@
           <p id="camera-status"
             style="color: white; z-index: 1; position:absolute; margin-top: 25%; margin-left: 40%; font-size: 18px;">
             Your Camera is off</p>
-          <video class="video" id="joinCam" style="
+          <video playsinline="true" webkit-playsinline="true" x5-playsinline="true" class="video" id="joinCam" style="
                 position: absolute;
                 width: 100%;
                 height: 100%;
                 border-radius: 10px;
+                
                 transform: rotate('90');
                 object-fit: cover;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19),
@@ -461,7 +462,7 @@
   </div>
 
   <script src="index.js" defer></script>
-  <script src="https://sdk.videosdk.live/js-sdk/0.0.82/videosdk.js"></script>
+  <script src="https://sdk.videosdk.live/js-sdk/0.0.99/videosdk.js"></script>
   <script src="config.js" defer></script>
 </body>
 <div id="viewer"></div>

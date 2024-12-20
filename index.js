@@ -743,22 +743,54 @@ async function startMeeting(token, meetingId, name) {
     joinPageVideoStream = null;
     joinPageWebcam.srcObject = null;
   }
-
+  
   window.VideoSDK.off("device-changed", deviceChangeEventListener);
-
+  
   // Meeting config
   window.VideoSDK.config(token);
   let customVideoTrack, customAudioTrack;
-
-  if (webCamEnable) {
-    // console.log(cameraDeviceDropDown.value);
-    customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
-      cameraId: currentCamera.deviceId ? currentCamera.deviceId : undefined,
-      optimizationMode: "motion",
-      multiStream: false,
-    });
+  
+  // First ensure we have access to devices
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter(device => device.kind === 'videoinput');
+    const microphones = devices.filter(device => device.kind === 'audioinput');
+    
+    // Set default camera and microphone if not already set
+    if (cameras.length > 0 && !currentCamera) {
+      currentCamera = cameras[0];
+    }
+    
+    if (microphones.length > 0 && !currentMic) {
+      currentMic = microphones[0];
+    }
+  
+    // Handle video track creation
+    if (webCamEnable) {
+      console.log('Current camera:', currentCamera);
+      const cameraId = currentCamera?.deviceId || undefined;
+      
+      customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
+        cameraId: cameraId,
+        optimizationMode: "motion",
+        multiStream: false,
+      });
+    }
+  
+    // Handle audio track creation
+    if (micEnable) {
+      console.log('Current microphone:', currentMic);
+      const micId = currentMic?.deviceId || undefined;
+      
+      customAudioTrack = await window.VideoSDK.createMicrophoneAudioTrack({
+        microphoneId: micId,
+      });
+    }
+  
+  } catch (error) {
+    console.error('Error accessing media devices:', error);
+    // You might want to show an error message to the user here
   }
-
   if (micEnable) {
     console.log("Hello microphone called");
     // console.log(microphoneDeviceDropDown.value);
@@ -1002,6 +1034,9 @@ function createVideoElement(pId) {
   division.setAttribute("id", "video-frame-container");
   division.className = `v-${pId}`;
   let videoElement = document.createElement("video");
+  videoElement.setAttribute("playsinline", "");
+      videoElement.setAttribute("webkit-playsinline", "");
+      videoElement.setAttribute("x5-playsinline", "");
   videoElement.classList.add("video-frame");
   videoElement.setAttribute("id", `v-${pId}`);
   videoElement.setAttribute("playsinline", true);
@@ -1015,7 +1050,7 @@ function createVideoElement(pId) {
 function createAudioElement(pId) {
   let audioElement = document.createElement("audio");
   audioElement.setAttribute("autoPlay", "false");
-  audioElement.setAttribute("playsInline", "true");
+  audioElement.setAttribute("playsinline", "true");
   audioElement.setAttribute("controls", "false");
   audioElement.setAttribute("id", `a-${pId}`);
   return audioElement;
