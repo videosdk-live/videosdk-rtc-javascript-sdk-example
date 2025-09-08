@@ -1127,11 +1127,15 @@ function addDomEvents() {
     const message = document.getElementById("txtChat").value;
     console.log("publish : ", message);
     document.getElementById("txtChat").value = "";
+    try{
     meeting.pubSub
       .publish("CHAT", message, { persist: true })
       .then((res) => console.log(`response of publish : ${res}`))
       .catch((err) => console.log(`error of publish : ${err}`));
     // meeting.sendChatMessage(JSON.stringify({ type: "chat", message }));
+    }catch(e){
+      console.log("Error in Pubsub",e)
+    }
   });
 
   // //leave Meeting Button
