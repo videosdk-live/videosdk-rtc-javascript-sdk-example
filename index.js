@@ -34,8 +34,6 @@ const microphoneDeviceDropDown = document.getElementById('microphoneDeviceDropDo
 const playBackDeviceDropDown = document.getElementById('playBackDeviceDropDown');
 const joinMeetingCode = document.getElementById("joinMeetingId");
 const joiningName = document.getElementById("name");
-const refreshButton = document.getElementById("refresh");
-const networkErrorRefreshButton = document.querySelectorAll(".network-error-refresh");
 const microphonePermission = document.getElementById("no-microphone-permission");
 const cameraPermission = document.getElementById("no-camera-permission");
 
@@ -164,9 +162,13 @@ window.addEventListener("load", async function () {
 
 
   if (checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.VIDEO) === false || checkAudioVideoPermission.get(window.VideoSDK.Constants.permission.AUDIO) === false) {
-    checkAudioVideoPermission = await window.VideoSDK.requestPermission(
-      window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
-    );
+    try {
+      checkAudioVideoPermission = await window.VideoSDK.requestPermission(
+        window.VideoSDK.Constants.permission.AUDIO_AND_VIDEO,
+      );
+    } catch (ex) {
+      console.log("Error in requestPermission", ex);
+    }
   }
 
 
@@ -249,116 +251,11 @@ window.addEventListener("load", async function () {
     await updateDevices();
     await enableCam();
   }
-  window.VideoSDK.on("device-changed", deviceChangeEventListener);
-  refreshButton.addEventListener('click', async () => {
-    try {
-      const refreshElement = document.getElementById("refresh");
-      console.log(refreshElement);
-      this.document.getElementById("download-speed-div").style.display = "none";
-      this.document.getElementById("upload-speed-div").style.display = "none";
-      this.document.getElementById("check-speed-div").style.display = "unset";
-      this.document.getElementById("network-stats").style.marginLeft = "445px";
-      refreshElement.firstElementChild.classList.remove("bi-arrow-cloclwise");
-      refreshElement.firstElementChild.classList.add("bi-arrow-repeat");
-      refreshElement.classList.add("spin")
-      const result = await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 });
-      this.document.getElementById("download-speed-div").style.display = "flex";
-      this.document.getElementById("upload-speed-div").style.display = "flex";
-      this.document.getElementById("check-speed-div").style.display = "none";
-      this.document.getElementById("network-stats").style.marginLeft = "375px";
-      refreshElement.firstElementChild.classList.add("bi-arrow-cloclwise");
-      refreshElement.firstElementChild.classList.remove("bi-arrow-repeat");
-      refreshElement.classList.remove("spin");
-      document.getElementById("network-error-offline").style.display = "none";
-      document.getElementById("network-error-online").style.display = "none";
-      console.log("Network Stats : ", result);
-      document.getElementById("download-speed").innerHTML = result["downloadSpeed"] + " MBPS";
-      document.getElementById("upload-speed").innerHTML = result["uploadSpeed"] + " MBPS";
-      document.getElementById("network-stats").style.display = "flex";
-    } catch (error) {
-      this.document.getElementById("network-stats").style.display = "none";
-      console.log(error);
-      if (error == "Not able to get NetworkStats due to no Network") {
-        this.document.getElementById("network-error-offline").style.display = "flex"
-        console.log("Error in Network Stats : ", error);
-      } else if (error == "Not able to get NetworkStats due to timeout") {
-        this.document.getElementById("network-error-online").style.display = "flex"
-        console.log("Error in Network Stats : ", error);
-      }
-    }
-  });
-
-  networkErrorRefreshButton.forEach((refersh) => {
-    refersh.addEventListener("click", async () => {
-      try {
-        const refreshElement = document.getElementById("refresh");
-        console.log(refreshElement);  
-        refreshElement.firstElementChild.classList.remove("bi-arrow-cloclwise");
-        refreshElement.firstElementChild.classList.add("bi-arrow-repeat");
-        refreshElement.classList.add("spin");
-        this.document.getElementById("download-speed-div").style.display = "none";
-        this.document.getElementById("upload-speed-div").style.display = "none";
-        this.document.getElementById("check-speed-div").style.display = "unset";
-        this.document.getElementById("network-stats").style.marginLeft = "445px";
-        const result = await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 });
-        // console.log("SUII");
-        this.document.getElementById("download-speed-div").style.display = "flex";
-        this.document.getElementById("upload-speed-div").style.display = "flex";
-        this.document.getElementById("check-speed-div").style.display = "none";
-        this.document.getElementById("network-stats").style.marginLeft = "375px";
-        refreshElement.firstElementChild.classList.remove("bi-arrow-repeat");
-        refreshElement.classList.remove("spin");
-        refreshElement.firstElementChild.classList.add("bi-arrow-cloclwise");
-        document.getElementById("network-error-offline").style.display = "none";
-        document.getElementById("network-error-online").style.display = "none";
-        console.log("Network Stats : ", result);
-        document.getElementById("download-speed").innerHTML = result["downloadSpeed"] + " MBPS";
-        document.getElementById("upload-speed").innerHTML = result["uploadSpeed"] + " MBPS";
-        document.getElementById("network-stats").style.display = "flex";
-      } catch (error) {
-        this.document.getElementById("network-stats").style.display = "none";
-        console.log(error);
-        if (error == "Not able to get NetworkStats due to no Network") {
-          this.document.getElementById("network-error-offline").style.display = "flex"
-          console.log("Error in Network Stats : ", error);
-        } else if (error == "Not able to get NetworkStats due to timeout") {
-          this.document.getElementById("network-error-online").style.display = "flex"
-          console.log("Error in Network Stats : ", error);
-        }
-      }
-    })
-  })
-
-  await window.VideoSDK.getNetworkStats({ timeoutDuration: 120000 })
-    .then((result) => {
-      const refreshElement = document.getElementById("refresh");
-      this.document.getElementById("download-speed-div").style.display = "flex";
-      this.document.getElementById("upload-speed-div").style.display = "flex";
-      this.document.getElementById("check-speed-div").style.display = "none";
-      this.document.getElementById("network-stats").style.marginLeft = "375px";
-      // console.log("repeat removed")
-      refreshElement.classList.remove("spin");
-      refreshElement.firstElementChild.classList.remove("bi-arrow-repeat");
-      refreshElement.firstElementChild.classList.add("bi-arrow-clockwise");
-      document.getElementById("network-error-offline").style.display = "none";
-      document.getElementById("network-error-online").style.display = "none";
-      console.log("Network Stats : ", result);
-      document.getElementById("download-speed").innerHTML = result["downloadSpeed"] + " MBPS"
-      document.getElementById("upload-speed").innerHTML = result["uploadSpeed"] + " MBPS"
-      document.getElementById("network-stats").style.display = "flex";
-    })
-    .catch((error) => {
-      console.log(error);
-      if (error == "Not able to get NetworkStats due to no Network") {
-        this.document.getElementById("network-error-offline").style.display = "flex"
-        console.log("Error in Network Stats : ", error);
-      } else if (error == "Not able to get NetworkStats due to timeout") {
-        this.document.getElementById("network-error-online").style.display = "flex"
-        console.log("Error in Network Stats : ", error);
-      }
-    });
-
-
+  try {
+    window.VideoSDK.on("device-changed", deviceChangeEventListener);
+  } catch (e) {
+    console.log("Error registering device-changed listener", e);
+  }
 });
 
 async function updateDevices() {
@@ -744,51 +641,77 @@ async function startMeeting(token, meetingId, name) {
     joinPageWebcam.srcObject = null;
   }
 
-  window.VideoSDK.off("device-changed", deviceChangeEventListener);
+  try {
+    window.VideoSDK.off("device-changed", deviceChangeEventListener);
+  } catch (e) {
+    console.log("Error removing device-changed listener", e);
+  }
 
   // Meeting config
-  window.VideoSDK.config(token);
+  try {
+    window.VideoSDK.config(token);
+  } catch (e) {
+    console.log("Error in VideoSDK.config", e);
+    return;
+  }
+
   let customVideoTrack, customAudioTrack;
 
   if (webCamEnable) {
-    // console.log(cameraDeviceDropDown.value);
-    customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
-      cameraId: currentCamera.deviceId ? currentCamera.deviceId : undefined,
-      optimizationMode: "motion",
-      multiStream: false,
-    });
+    try {
+      customVideoTrack = await window.VideoSDK.createCameraVideoTrack({
+        cameraId: currentCamera.deviceId ? currentCamera.deviceId : undefined,
+        optimizationMode: "motion",
+        multiStream: false,
+      });
+    } catch (e) {
+      console.log("Error in createCameraVideoTrack", e);
+    }
   }
 
   if (micEnable) {
     console.log("Hello microphone called");
-    // console.log(microphoneDeviceDropDown.value);
     console.log(currentMic.deviceId);
-    customAudioTrack = await window.VideoSDK.createMicrophoneAudioTrack({
-      microphoneId: currentMic.deviceId ? currentMic.deviceId : undefined,
-      encoderConfig: "high_quality",
-      noiseConfig: {
-        noiseSuppresion: true,
-        echoCancellation: true,
-        autoGainControl: true,
-      },
-    });
+    try {
+      customAudioTrack = await window.VideoSDK.createMicrophoneAudioTrack({
+        microphoneId: currentMic.deviceId ? currentMic.deviceId : undefined,
+        encoderConfig: "high_quality",
+        noiseConfig: {
+          noiseSuppression: true,
+          echoCancellation: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (e) {
+      console.log("Error in createMicrophoneAudioTrack", e);
+    }
   }
 
   // Meeting Init
-  meeting = window.VideoSDK.initMeeting({
-    meetingId: meetingId, // required
-    name: name, // required
-    micEnabled: micEnable, // optional, default: true
-    webcamEnabled: webCamEnable, // optional, default: true
-    maxResolution: "hd", // optional, default: "hd"
-    customCameraVideoTrack: customVideoTrack,
-    customMicrophoneAudioTrack: customAudioTrack,
-  });
+  try {
+    meeting = window.VideoSDK.initMeeting({
+      meetingId: meetingId, // required
+      name: name, // required
+      micEnabled: micEnable, // optional, default: true
+      webcamEnabled: webCamEnable, // optional, default: true
+      maxResolution: "hd", // optional, default: "hd"
+      customCameraVideoTrack: customVideoTrack,
+      customMicrophoneAudioTrack: customAudioTrack,
+    });
+  } catch (e) {
+    console.log("Error in initMeeting", e);
+    return;
+  }
 
   participants = meeting.participants;
   console.log("meeting obj : ", meeting);
   // Meeting Join
-  meeting.join();
+  try {
+    await meeting.join();
+  } catch (e) {
+    console.log("Error in meeting.join", e);
+    return;
+  }
 
   //create Local Participant
   createLocalParticipant();
@@ -825,8 +748,8 @@ async function startMeeting(token, meetingId, name) {
     console.log("microphone used : ", meeting.selectedMicrophoneDevice);
   });
 
-  meeting.on("meeting-joined", () => {
-    meeting.pubSub.subscribe("CHAT", (data) => {
+  meeting.on("meeting-joined", async () => {
+    const renderChatMessage = (data) => {
       let { message, senderId, senderName, timestamp } = data;
       const chatBox = document.getElementById("chatArea");
       const chatTemplate = `
@@ -840,8 +763,18 @@ async function startMeeting(token, meetingId, name) {
           </div>
           `;
       chatBox.insertAdjacentHTML("beforeend", chatTemplate);
-    });
+    };
 
+    try {
+      await meeting.pubSub.subscribe("CHAT", {
+        onMessageReceived: renderChatMessage,
+        onOldMessagesReceived: (messages) => {
+          messages.forEach(renderChatMessage);
+        },
+      });
+    } catch (e) {
+      console.log("Error subscribing to CHAT topic", e);
+    }
   });
 
   meeting.on("meeting-left", () => {
@@ -855,10 +788,14 @@ async function startMeeting(token, meetingId, name) {
     let videoElement = createVideoElement(participant.id);
     console.log("Video Element Created");
     let resizeObserver = new ResizeObserver(() => {
-      participant.setViewPort(
-        videoElement.offsetWidth,
-        videoElement.offsetHeight
-      );
+      try {
+        participant.setViewPort(
+          videoElement.offsetWidth,
+          videoElement.offsetHeight
+        );
+      } catch (e) {
+        console.log("Error in participant.setViewPort", e);
+      }
     });
     resizeObserver.observe(videoElement);
     let audioElement = createAudioElement(participant.id);
@@ -1039,7 +976,11 @@ function setTrack(stream, audioElement, participant, isLocal) {
       .catch((error) =>
         console.error("videoElem.current.play() failed", error)
       );
-    participant.setViewPort(videoElm.offsetWidth, videoElm.offsetHeight);
+    try {
+      participant.setViewPort(videoElm.offsetWidth, videoElm.offsetHeight);
+    } catch (e) {
+      console.log("Error in participant.setViewPort", e);
+    }
   }
   if (stream.kind == "audio") {
     if (isLocal) {
@@ -1072,27 +1013,43 @@ function setTrack(stream, audioElement, participant, isLocal) {
 //add button events once meeting is created
 function addDomEvents() {
   // mic button event listener
-  micOn.addEventListener("click", () => {
+  micOn.addEventListener("click", async () => {
     console.log("Mic-on pressed");
-    meeting.muteMic();
+    try {
+      await meeting.muteMic();
+    } catch (e) {
+      console.log("Error in meeting.muteMic", e);
+    }
   });
 
   micOff.addEventListener("click", async () => {
     console.log("Mic-f pressed");
     if (microphonePermissionAllowed) {
-      meeting.unmuteMic();
+      try {
+        await meeting.unmuteMic();
+      } catch (e) {
+        console.log("Error in meeting.unmuteMic", e);
+      }
     } else {
       console.log("Audio : Permission not granted");
     }
   });
 
   videoCamOn.addEventListener("click", async () => {
-    meeting.disableWebcam();
+    try {
+      await meeting.disableWebcam();
+    } catch (e) {
+      console.log("Error in meeting.disableWebcam", e);
+    }
   });
 
   videoCamOff.addEventListener("click", async () => {
     if (cameraPermissionAllowed) {
-      meeting.enableWebcam();
+      try {
+        await meeting.enableWebcam();
+      } catch (e) {
+        console.log("Error in meeting.enableWebcam", e);
+      }
     } else {
       console.log("Camera : Permission not granted");
     }
@@ -1100,10 +1057,14 @@ function addDomEvents() {
 
   // screen share button event listener
   btnScreenShare.addEventListener("click", async () => {
-    if (btnScreenShare.style.color == "grey") {
-      meeting.disableScreenShare();
-    } else {
-      meeting.enableScreenShare();
+    try {
+      if (btnScreenShare.style.color == "grey") {
+        await meeting.disableScreenShare();
+      } else {
+        await meeting.enableScreenShare();
+      }
+    } catch (e) {
+      console.log("Error in meeting screen share toggle", e);
     }
   });
 
@@ -1127,36 +1088,48 @@ function addDomEvents() {
     const message = document.getElementById("txtChat").value;
     console.log("publish : ", message);
     document.getElementById("txtChat").value = "";
-    try{
-    meeting.pubSub
-      .publish("CHAT", message, { persist: true })
-      .then((res) => console.log(`response of publish : ${res}`))
-      .catch((err) => console.log(`error of publish : ${err}`));
-    // meeting.sendChatMessage(JSON.stringify({ type: "chat", message }));
-    }catch(e){
-      console.log("Error in Pubsub",e)
+    try {
+      await meeting.pubSub.publish("CHAT", message, { persist: true });
+    } catch (e) {
+      console.log("Error in Pubsub", e);
     }
   });
 
   // //leave Meeting Button
   $("#leaveCall").click(async () => {
-    participants = new Map(meeting.participants);
-    meeting.leave();
+    try {
+      participants = new Map(meeting.participants);
+      await meeting.leave();
+    } catch (e) {
+      console.log("Error in meeting.leave", e);
+    }
   });
 
   //end meeting button
   $("#endCall").click(async () => {
-    meeting.end();
+    try {
+      await meeting.end();
+    } catch (e) {
+      console.log("Error in meeting.end", e);
+    }
   });
 
   // //startRecording
   btnStartRecording.addEventListener("click", async () => {
     console.log("btnRecording is clicked");
-    meeting.startRecording();
+    try {
+      await meeting.startRecording();
+    } catch (e) {
+      console.log("Error in meeting.startRecording", e);
+    }
   });
   // //Stop Recording
   btnStopRecording.addEventListener("click", async () => {
-    meeting.stopRecording();
+    try {
+      await meeting.stopRecording();
+    } catch (e) {
+      console.log("Error in meeting.stopRecording", e);
+    }
   });
 }
 
